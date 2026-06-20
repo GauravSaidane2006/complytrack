@@ -106,10 +106,10 @@ export default function Contracts() {
               <thead className="bg-slate-50">
                 <tr>
                   <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Title</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Party</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Type</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Value</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">End Date</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase hidden sm:table-cell">Party</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase hidden md:table-cell">Type</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase hidden lg:table-cell">Value</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase hidden md:table-cell">End Date</th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Status</th>
                   <th className="text-right px-4 py-3 text-xs font-medium text-slate-500 uppercase">Actions</th>
                 </tr>
@@ -117,11 +117,14 @@ export default function Contracts() {
               <tbody className="divide-y divide-slate-200">
                 {contracts.map((c) => (
                   <tr key={c._id} className="hover:bg-slate-50">
-                    <td className="px-4 py-3 text-sm font-medium text-slate-900">{c.title}</td>
-                    <td className="px-4 py-3 text-sm text-slate-600">{c.party}</td>
-                    <td className="px-4 py-3 text-sm capitalize text-slate-600">{c.type}</td>
-                    <td className="px-4 py-3 text-sm text-slate-600">₹{(c.value || 0).toLocaleString()}</td>
-                    <td className="px-4 py-3 text-sm text-slate-600">
+                    <td className="px-4 py-3">
+                      <p className="text-sm font-medium text-slate-900">{c.title}</p>
+                      <p className="text-xs text-slate-500 sm:hidden">{c.party}</p>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-slate-600 hidden sm:table-cell">{c.party}</td>
+                    <td className="px-4 py-3 text-sm capitalize text-slate-600 hidden md:table-cell">{c.type}</td>
+                    <td className="px-4 py-3 text-sm text-slate-600 hidden lg:table-cell">₹{(c.value || 0).toLocaleString()}</td>
+                    <td className="px-4 py-3 text-sm text-slate-600 hidden md:table-cell">
                       {c.endDate ? new Date(c.endDate).toLocaleDateString() : '-'}
                     </td>
                     <td className="px-4 py-3"><StatusBadge status={c.status} /></td>
@@ -151,7 +154,7 @@ export default function Contracts() {
 
       <Modal isOpen={showModal} onClose={() => { setShowModal(false); setEditing(null); setForm(emptyForm) }}
         title={editing ? 'Edit Contract' : 'New Contract'} size="lg">
-        <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="col-span-2">
             <label className="block text-sm font-medium text-slate-700 mb-1">Title</label>
             <input type="text" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })}

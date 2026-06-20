@@ -71,7 +71,7 @@ export default function Settings() {
       <div className="bg-white rounded-xl border border-slate-200 p-6">
         <h2 className="text-lg font-semibold text-slate-900 mb-4">Organization</h2>
         <form onSubmit={handleOrgSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Company Name</label>
               <input type="text" value={currentOrg.name || ''}
@@ -85,7 +85,7 @@ export default function Settings() {
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">GSTIN</label>
               <input type="text" value={currentOrg.gstin || ''}
@@ -99,7 +99,7 @@ export default function Settings() {
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">City</label>
               <input type="text" value={currentOrg.city || ''}
@@ -113,7 +113,7 @@ export default function Settings() {
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
             </div>
           </div>
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
             <div>
               <span className="text-sm text-slate-500">Compliance Health: </span>
               <span className={`text-sm font-bold ${(org?.complianceHealthScore || 0) >= 70 ? 'text-emerald-600' : (org?.complianceHealthScore || 0) >= 40 ? 'text-amber-600' : 'text-red-600'}`}>
@@ -132,7 +132,7 @@ export default function Settings() {
       <div className="bg-white rounded-xl border border-slate-200 p-6">
         <h2 className="text-lg font-semibold text-slate-900 mb-4">Profile</h2>
         <form onSubmit={handleProfileSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
               <input type="text" defaultValue={profile?.name || ''}

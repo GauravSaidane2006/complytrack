@@ -62,7 +62,7 @@ export default function Templates() {
         title="Compliance Templates"
         description="Pre-defined compliance templates for quick setup"
         actions={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <button onClick={() => seedTemplates()}
               className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50">Seed Templates</button>
             <button onClick={() => setShowCreateModal(true)}
@@ -104,7 +104,7 @@ export default function Templates() {
             <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
               className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Law</label>
               <select value={form.law} onChange={(e) => setForm({ ...form, law: e.target.value })}
@@ -124,7 +124,7 @@ export default function Templates() {
               </select>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Frequency</label>
               <select value={form.frequency} onChange={(e) => setForm({ ...form, frequency: e.target.value })}

@@ -60,7 +60,7 @@ export default function Register() {
           <p className="text-slate-400 mt-2">Create your organization account</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-2xl p-8">
+        <div className="bg-white rounded-xl shadow-2xl p-6 sm:p-8">
           <h2 className="text-xl font-semibold text-slate-900 mb-6">Register</h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -93,7 +93,7 @@ export default function Register() {
               {errors.organizationName && <p className="text-xs text-red-500 mt-1">{errors.organizationName}</p>}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
                 <input type="tel" value={form.phone} onChange={(e) => handleChange('phone', e.target.value)}

@@ -61,10 +61,10 @@ export default function Reports() {
               <thead className="bg-slate-50">
                 <tr>
                   <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Title</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Type</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Format</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Score</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Generated</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase hidden sm:table-cell">Type</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase hidden md:table-cell">Format</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase hidden lg:table-cell">Score</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase hidden sm:table-cell">Generated</th>
                   <th className="text-right px-4 py-3 text-xs font-medium text-slate-500 uppercase">Actions</th>
                 </tr>
               </thead>
@@ -72,10 +72,10 @@ export default function Reports() {
                 {reports.map((report) => (
                   <tr key={report._id} className="hover:bg-slate-50">
                     <td className="px-4 py-3 text-sm font-medium text-slate-900">{report.title}</td>
-                    <td className="px-4 py-3 text-sm capitalize text-slate-600">{report.type}</td>
-                    <td className="px-4 py-3"><StatusBadge status={report.format} type="priority" /></td>
-                    <td className="px-4 py-3 text-sm">{report.summary?.complianceScore || 0}%</td>
-                    <td className="px-4 py-3 text-sm text-slate-600">{new Date(report.createdAt).toLocaleDateString()}</td>
+                    <td className="px-4 py-3 text-sm capitalize text-slate-600 hidden sm:table-cell">{report.type}</td>
+                    <td className="px-4 py-3 hidden md:table-cell"><StatusBadge status={report.format} type="priority" /></td>
+                    <td className="px-4 py-3 text-sm hidden lg:table-cell">{report.summary?.complianceScore || 0}%</td>
+                    <td className="px-4 py-3 text-sm text-slate-600 hidden sm:table-cell">{new Date(report.createdAt).toLocaleDateString()}</td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-2">
                         {report.fileUrl && (

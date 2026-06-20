@@ -13,7 +13,7 @@ const navItems = [
   { to: '/settings', label: 'Settings', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z' }
 ]
 
-export default function Sidebar() {
+export default function Sidebar({ open, onClose, collapsed, onToggleCollapse }) {
   const user = useSelector((state) => state.auth.user)
 
   const filteredNav = navItems.filter((item) => {
@@ -22,46 +22,79 @@ export default function Sidebar() {
   })
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-64 bg-slate-900 text-white flex flex-col z-30">
-      <div className="p-5 border-b border-slate-700">
-        <h1 className="text-xl font-bold flex items-center gap-2">
-          <svg className="w-7 h-7 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          ComplyTrack
-        </h1>
-      </div>
+    <>
+      {open && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity"
+          onClick={onClose}
+        />
+      )}
 
-      <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-        {filteredNav.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                isActive ? 'bg-emerald-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-              }`
-            }
+      <aside
+        className={`fixed left-0 top-0 h-full bg-slate-900 text-white flex flex-col z-50 transform transition-all duration-300 ease-in-out lg:translate-x-0 ${
+          collapsed ? 'lg:w-20' : 'lg:w-64'
+        } w-64 ${open ? 'translate-x-0' : '-translate-x-full'}`}
+      >
+        <div className={`p-5 border-b border-slate-700 flex items-center ${collapsed ? 'lg:justify-center lg:px-2' : 'justify-between'}`}>
+          {!collapsed && (
+            <h1 className="text-xl font-bold flex items-center gap-2">
+              <svg className="w-7 h-7 text-emerald-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="whitespace-nowrap">ComplyTrack</span>
+            </h1>
+          )}
+          {collapsed && (
+            <div className="hidden lg:block">
+              <svg className="w-7 h-7 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          )}
+
+          <button
+            onClick={onClose}
+            className="lg:hidden p-1 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white"
           >
-            <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
-            {item.label}
-          </NavLink>
-        ))}
-      </nav>
+          </button>
+        </div>
 
-      <div className="p-4 border-t border-slate-700">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-sm font-bold">
-            {user?.name?.charAt(0)?.toUpperCase() || 'U'}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{user?.name}</p>
-            <p className="text-xs text-slate-400 capitalize">{user?.role}</p>
+        <nav className="flex-1 overflow-y-auto p-3 space-y-1">
+          {filteredNav.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              onClick={onClose}
+              title={collapsed ? item.label : undefined}
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-lg text-sm font-medium transition-colors ${
+                  collapsed ? 'lg:justify-center lg:px-0 lg:py-2.5 px-3 py-2.5' : 'px-3 py-2.5'
+                } ${isActive ? 'bg-emerald-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`
+              }
+            >
+              <svg className={`w-5 h-5 flex-shrink-0 ${collapsed ? 'lg:w-6 lg:h-6' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
+              </svg>
+              <span className={`transition-all duration-300 ${collapsed ? 'lg:hidden' : ''}`}>{item.label}</span>
+            </NavLink>
+          ))}
+        </nav>
+
+        <div className={`p-4 border-t border-slate-700 ${collapsed ? 'lg:px-2' : ''}`}>
+          <div className={`flex items-center gap-3 ${collapsed ? 'lg:justify-center' : ''}`}>
+            <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-sm font-bold flex-shrink-0">
+              {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+            </div>
+            <div className={`flex-1 min-w-0 transition-all duration-300 ${collapsed ? 'lg:hidden' : ''}`}>
+              <p className="text-sm font-medium truncate">{user?.name}</p>
+              <p className="text-xs text-slate-400 capitalize">{user?.role}</p>
+            </div>
           </div>
         </div>
-      </div>
-    </aside>
+      </aside>
+    </>
   )
 }

@@ -110,7 +110,7 @@ export default function ComplianceForm() {
               className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm" />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Law *</label>
               <select value={form.law} onChange={(e) => handleChange('law', e.target.value)}
@@ -139,7 +139,7 @@ export default function ComplianceForm() {
               className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm" />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Frequency *</label>
               <select value={form.frequency} onChange={(e) => handleChange('frequency', e.target.value)}

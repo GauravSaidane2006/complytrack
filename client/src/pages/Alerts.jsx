@@ -54,7 +54,7 @@ export default function Alerts() {
         title="Alerts & Notifications"
         description="Stay informed about deadlines and compliance changes"
         actions={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <button onClick={handleGenerate}
               className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50">
               Check Deadlines

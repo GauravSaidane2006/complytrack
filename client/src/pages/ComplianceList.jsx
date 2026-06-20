@@ -65,13 +65,13 @@ export default function ComplianceList() {
       />
 
       <div className="bg-white rounded-xl border border-slate-200">
-        <div className="p-4 border-b border-slate-200 flex flex-col sm:flex-row gap-3">
+        <div className="p-4 border-b border-slate-200 flex flex-col gap-3">
           <input
             type="text"
             placeholder="Search items..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm"
+            className="flex-1 min-w-0 px-3 py-2 border border-slate-300 rounded-lg text-sm"
           />
           <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
             className="px-3 py-2 border border-slate-300 rounded-lg text-sm">
@@ -102,9 +102,9 @@ export default function ComplianceList() {
               <thead className="bg-slate-50">
                 <tr>
                   <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Title</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Law</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Due Date</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Priority</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase hidden sm:table-cell">Law</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase hidden md:table-cell">Due Date</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase hidden sm:table-cell">Priority</th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Status</th>
                   <th className="text-right px-4 py-3 text-xs font-medium text-slate-500 uppercase">Actions</th>
                 </tr>
@@ -116,12 +116,13 @@ export default function ComplianceList() {
                       <Link to={`/compliance/${item._id}`} className="text-sm font-medium text-slate-900 hover:text-emerald-600">
                         {item.title}
                       </Link>
+                      <p className="text-xs text-slate-500 sm:hidden mt-0.5">{item.law}</p>
                     </td>
-                    <td className="px-4 py-3 text-sm text-slate-600">{item.law}</td>
-                    <td className="px-4 py-3 text-sm text-slate-600">
+                    <td className="px-4 py-3 text-sm text-slate-600 hidden sm:table-cell">{item.law}</td>
+                    <td className="px-4 py-3 text-sm text-slate-600 hidden md:table-cell">
                       {new Date(item.dueDate).toLocaleDateString()}
                     </td>
-                    <td className="px-4 py-3"><StatusBadge status={item.priority} type="priority" /></td>
+                    <td className="px-4 py-3 hidden sm:table-cell"><StatusBadge status={item.priority} type="priority" /></td>
                     <td className="px-4 py-3"><StatusBadge status={item.status} /></td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-2">

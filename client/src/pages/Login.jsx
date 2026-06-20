@@ -46,7 +46,7 @@ export default function Login() {
           <p className="text-slate-400 mt-2">Compliance Management Platform</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-2xl p-8">
+        <div className="bg-white rounded-xl shadow-2xl p-6 sm:p-8">
           <h2 className="text-xl font-semibold text-slate-900 mb-6">Sign in to your account</h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">

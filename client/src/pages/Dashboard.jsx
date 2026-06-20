@@ -30,7 +30,7 @@ export default function Dashboard() {
         <p className="text-sm text-slate-500 mt-1">Overview of your organization's compliance status</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <StatCard
           title="Compliance Score"
           value={`${stats.complianceScore || 0}%`}
@@ -64,8 +64,8 @@ export default function Dashboard() {
         <div className="bg-white rounded-xl border border-slate-200 p-5">
           <h3 className="font-semibold text-slate-900 mb-4">Compliance Status</h3>
           {pieData.length > 0 ? (
-            <div className="flex items-center gap-4">
-              <ResponsiveContainer width="60%" height={220}>
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <ResponsiveContainer width="100%" height={200} minWidth={150}>
                 <PieChart>
                   <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value">
                     {pieData.map((entry, index) => (
@@ -76,13 +76,15 @@ export default function Dashboard() {
                 </PieChart>
               </ResponsiveContainer>
               <div className="space-y-2">
-                {pieData.map((item) => (
-                  <div key={item.name} className="flex items-center gap-2 text-sm">
-                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                    <span className="text-slate-600">{item.name}</span>
-                    <span className="font-medium text-slate-900">{item.value}</span>
-                  </div>
-                ))}
+                <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-2 sm:mt-0">
+                  {pieData.map((item) => (
+                    <div key={item.name} className="flex items-center gap-2 text-sm">
+                      <span className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                      <span className="text-slate-600">{item.name}</span>
+                      <span className="font-medium text-slate-900">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           ) : (

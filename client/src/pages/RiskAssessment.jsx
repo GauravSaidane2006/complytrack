@@ -84,9 +84,9 @@ export default function RiskAssessment() {
               <thead className="bg-slate-50">
                 <tr>
                   <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Compliance Item</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Risk Score</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Impact</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Likelihood</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase hidden sm:table-cell">Risk Score</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase hidden md:table-cell">Impact</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase hidden md:table-cell">Likelihood</th>
                   <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Status</th>
                   <th className="text-right px-4 py-3 text-xs font-medium text-slate-500 uppercase">Actions</th>
                 </tr>
@@ -94,8 +94,11 @@ export default function RiskAssessment() {
               <tbody className="divide-y divide-slate-200">
                 {assessments.map((a) => (
                   <tr key={a._id} className="hover:bg-slate-50">
-                    <td className="px-4 py-3 text-sm text-slate-900">{a.complianceItem?.title || 'N/A'}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-sm text-slate-900">
+                      <span className="hidden sm:inline">{a.complianceItem?.title || 'N/A'}</span>
+                      <span className="sm:hidden line-clamp-1">{a.complianceItem?.title || 'N/A'}</span>
+                    </td>
+                    <td className="px-4 py-3 hidden sm:table-cell">
                       <div className="flex items-center gap-2">
                         <div className="w-16 bg-slate-200 rounded-full h-2">
                           <div className={`h-2 rounded-full ${
@@ -105,8 +108,8 @@ export default function RiskAssessment() {
                         <span className="text-xs font-medium">{a.riskScore}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3"><StatusBadge status={a.impact} type="priority" /></td>
-                    <td className="px-4 py-3"><StatusBadge status={a.likelihood} type="priority" /></td>
+                    <td className="px-4 py-3 hidden md:table-cell"><StatusBadge status={a.impact} type="priority" /></td>
+                    <td className="px-4 py-3 hidden md:table-cell"><StatusBadge status={a.likelihood} type="priority" /></td>
                     <td className="px-4 py-3"><StatusBadge status={a.status} type="priority" /></td>
                     <td className="px-4 py-3 text-right">
                       <select value={a.status} onChange={(e) => handleStatusChange(a._id, e.target.value)}
@@ -137,7 +140,7 @@ export default function RiskAssessment() {
               ))}
             </select>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Impact</label>
               <select value={form.impact} onChange={(e) => setForm({ ...form, impact: e.target.value })}

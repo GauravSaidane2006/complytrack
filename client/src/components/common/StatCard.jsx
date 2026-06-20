@@ -9,7 +9,7 @@ export default function StatCard({ title, value, icon, color = 'emerald', subtit
 
   return (
     <div
-      className={`bg-white rounded-xl border border-slate-200 p-5 ${onClick ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}`}
+      className={`bg-white rounded-xl border border-slate-200 p-3 sm:p-5 ${onClick ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}`}
       onClick={onClick}
     >
       <div className="flex items-start justify-between">

@@ -81,9 +81,9 @@ export default function Users() {
               <thead className="bg-slate-50">
                 <tr>
                   <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Name</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Email</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Role</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase">Status</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase hidden sm:table-cell">Email</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase hidden md:table-cell">Role</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase hidden sm:table-cell">Status</th>
                   <th className="text-right px-4 py-3 text-xs font-medium text-slate-500 uppercase">Actions</th>
                 </tr>
               </thead>
@@ -95,12 +95,15 @@ export default function Users() {
                         <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center text-sm font-bold">
                           {user.name.charAt(0).toUpperCase()}
                         </div>
-                        <span className="text-sm font-medium text-slate-900">{user.name}</span>
+                        <div>
+                          <span className="text-sm font-medium text-slate-900">{user.name}</span>
+                          <p className="text-xs text-slate-500 sm:hidden">{user.email}</p>
+                        </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-sm text-slate-600">{user.email}</td>
-                    <td className="px-4 py-3"><StatusBadge status={user.role} type="priority" /></td>
-                    <td className="px-4 py-3"><StatusBadge status={user.isActive ? 'active' : 'inactive'} /></td>
+                    <td className="px-4 py-3 text-sm text-slate-600 hidden sm:table-cell">{user.email}</td>
+                    <td className="px-4 py-3 hidden md:table-cell"><StatusBadge status={user.role} type="priority" /></td>
+                    <td className="px-4 py-3 hidden sm:table-cell"><StatusBadge status={user.isActive ? 'active' : 'inactive'} /></td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button onClick={() => handleEdit(user)}
@@ -128,7 +131,7 @@ export default function Users() {
       <Modal isOpen={showModal} onClose={() => { setShowModal(false); setEditingUser(null); resetForm() }}
         title={editingUser ? 'Edit User' : 'Add User'}>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
               <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -140,7 +143,7 @@ export default function Users() {
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">{editingUser ? 'New Password (leave blank to keep)' : 'Password'}</label>
               <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })}
@@ -156,7 +159,7 @@ export default function Users() {
               </select>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <input type="text" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })}
               placeholder="Phone" className="px-3 py-2 border border-slate-300 rounded-lg text-sm" />
             <input type="text" value={form.designation} onChange={(e) => setForm({ ...form, designation: e.target.value })}

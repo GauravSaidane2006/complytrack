@@ -23,7 +23,7 @@ export default function ComplianceDetail() {
 
   return (
     <div className="max-w-3xl">
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-start gap-3 mb-6">
         <Link to="/compliance" className="text-slate-400 hover:text-slate-600">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -38,7 +38,7 @@ export default function ComplianceDetail() {
           <StatusBadge status={item.priority} type="priority" />
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <div>
             <p className="text-xs text-slate-500 uppercase font-medium">Law</p>
             <p className="text-sm text-slate-900 mt-1">{item.law}</p>
