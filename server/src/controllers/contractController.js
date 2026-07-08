@@ -1,4 +1,5 @@
 const Contract = require('../models/Contract');
+const { escapeRegex } = require('../utils/security');
 
 exports.getContracts = async (req, res, next) => {
   try {
@@ -6,10 +7,11 @@ exports.getContracts = async (req, res, next) => {
     if (req.query.status) filter.status = req.query.status;
     if (req.query.type) filter.type = req.query.type;
     if (req.query.search) {
+      const sanitizedSearch = escapeRegex(req.query.search);
       filter.$or = [
-        { title: { $regex: req.query.search, $options: 'i' } },
-        { party: { $regex: req.query.search, $options: 'i' } },
-        { contractNumber: { $regex: req.query.search, $options: 'i' } }
+        { title: { $regex: sanitizedSearch, $options: 'i' } },
+        { party: { $regex: sanitizedSearch, $options: 'i' } },
+        { contractNumber: { $regex: sanitizedSearch, $options: 'i' } }
       ];
     }
 

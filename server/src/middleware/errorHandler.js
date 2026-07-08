@@ -16,16 +16,21 @@ const errorHandler = (err, req, res, next) => {
 
   if (err.name === 'CastError') {
     statusCode = 400;
-    message = `Invalid ${err.path}: ${err.value}`;
+    message = 'Invalid resource ID.';
   }
 
-  console.error(`[ERROR] ${statusCode} - ${message}`, err.stack);
-
-  res.status(statusCode).json({
-    success: false,
-    message,
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-  });
+  if (process.env.NODE_ENV === 'production') {
+    res.status(statusCode).json({
+      success: false,
+      message: statusCode === 500 ? 'Internal Server Error' : message
+    });
+  } else {
+    res.status(statusCode).json({
+      success: false,
+      message,
+      stack: err.stack
+    });
+  }
 };
 
 module.exports = errorHandler;

@@ -6,7 +6,6 @@ exports.getAlerts = async (req, res, next) => {
     const filter = { organization: req.organizationId };
     if (req.query.type) filter.type = req.query.type;
     if (req.query.isRead !== undefined) filter.isRead = req.query.isRead === 'true';
-    if (req.query.user) filter.user = req.query.user;
 
     if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
       filter.$or = [{ user: req.user._id }, { user: { $exists: false } }];
@@ -72,10 +71,12 @@ exports.markAllAsRead = async (req, res, next) => {
 
 exports.createAlert = async (req, res, next) => {
   try {
-    const alert = await Alert.create({
-      ...req.body,
-      organization: req.organizationId
-    });
+    const allowedFields = ['type', 'title', 'message', 'priority', 'complianceItem', 'sentVia', 'scheduledFor'];
+    const alertData = { organization: req.organizationId };
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) alertData[field] = req.body[field];
+    }
+    const alert = await Alert.create(alertData);
     res.status(201).json(alert);
   } catch (error) {
     next(error);

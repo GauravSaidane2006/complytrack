@@ -48,10 +48,10 @@ export default function AuthBootstrap({ children }) {
 
   if (checking) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-stone-50 via-orange-50/30 to-stone-50 flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-sm text-slate-500">Restoring session...</p>
+          <p className="mt-4 text-sm text-stone-500">Restoring session...</p>
         </div>
       </div>
     )

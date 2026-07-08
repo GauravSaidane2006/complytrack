@@ -7,6 +7,11 @@ exports.getTemplates = async (req, res, next) => {
     if (req.query.category) filter.category = req.query.category;
     if (req.query.isActive) filter.isActive = req.query.isActive === 'true';
 
+    filter.$or = [
+      { organization: req.organizationId },
+      { isSystem: true }
+    ];
+
     const templates = await Template.find(filter).sort('-createdAt');
     res.json(templates);
   } catch (error) {
@@ -16,7 +21,13 @@ exports.getTemplates = async (req, res, next) => {
 
 exports.getTemplate = async (req, res, next) => {
   try {
-    const template = await Template.findById(req.params.id);
+    const template = await Template.findOne({
+      _id: req.params.id,
+      $or: [
+        { organization: req.organizationId },
+        { isSystem: true }
+      ]
+    });
     if (!template) return res.status(404).json({ message: 'Template not found.' });
     res.json(template);
   } catch (error) {
@@ -28,6 +39,7 @@ exports.createTemplate = async (req, res, next) => {
   try {
     const template = await Template.create({
       ...req.body,
+      organization: req.organizationId,
       createdBy: req.user._id
     });
     res.status(201).json(template);
@@ -38,11 +50,28 @@ exports.createTemplate = async (req, res, next) => {
 
 exports.updateTemplate = async (req, res, next) => {
   try {
-    const template = await Template.findByIdAndUpdate(req.params.id, req.body, {
-      new: true, runValidators: true
+    const template = await Template.findOne({
+      _id: req.params.id,
+      $or: [
+        { organization: req.organizationId },
+        { isSystem: true }
+      ]
     });
     if (!template) return res.status(404).json({ message: 'Template not found.' });
-    res.json(template);
+    if (template.isSystem) {
+      return res.status(403).json({ message: 'Cannot modify system templates.' });
+    }
+
+    const allowedFields = ['name', 'law', 'regulation', 'category', 'frequency', 'defaultPriority', 'description', 'isActive'];
+    const updates = {};
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) updates[field] = req.body[field];
+    }
+
+    const updated = await Template.findByIdAndUpdate(req.params.id, updates, {
+      new: true, runValidators: true
+    });
+    res.json(updated);
   } catch (error) {
     next(error);
   }
@@ -50,8 +79,15 @@ exports.updateTemplate = async (req, res, next) => {
 
 exports.deleteTemplate = async (req, res, next) => {
   try {
-    const template = await Template.findByIdAndDelete(req.params.id);
+    const template = await Template.findOne({
+      _id: req.params.id,
+      organization: req.organizationId
+    });
     if (!template) return res.status(404).json({ message: 'Template not found.' });
+    if (template.isSystem) {
+      return res.status(403).json({ message: 'Cannot delete system templates.' });
+    }
+    await Template.findByIdAndDelete(req.params.id);
     res.json({ message: 'Template deleted.' });
   } catch (error) {
     next(error);

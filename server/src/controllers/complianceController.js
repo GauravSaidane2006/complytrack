@@ -1,5 +1,6 @@
 const Compliance = require('../models/Compliance');
 const Template = require('../models/Template');
+const { escapeRegex } = require('../utils/security');
 
 exports.getComplianceItems = async (req, res, next) => {
   try {
@@ -9,10 +10,11 @@ exports.getComplianceItems = async (req, res, next) => {
     if (req.query.priority) filter.priority = { $in: req.query.priority.split(',') };
     if (req.query.assignedTo) filter.assignedTo = { $in: req.query.assignedTo.split(',') };
     if (req.query.search) {
+      const sanitizedSearch = escapeRegex(req.query.search);
       filter.$or = [
-        { title: { $regex: req.query.search, $options: 'i' } },
-        { regulation: { $regex: req.query.search, $options: 'i' } },
-        { description: { $regex: req.query.search, $options: 'i' } }
+        { title: { $regex: sanitizedSearch, $options: 'i' } },
+        { regulation: { $regex: sanitizedSearch, $options: 'i' } },
+        { description: { $regex: sanitizedSearch, $options: 'i' } }
       ];
     }
 

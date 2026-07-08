@@ -1,0 +1,31 @@
+{
+  "name": "complytrack-scraper",
+  "version": "1.0.0",
+  "description": "CLI tool to scrape Indian compliance laws and generate PDFs",
+  "main": "scraper.js",
+  "scripts": {
+    "scrape": "node scraper.js",
+    "scrape:all": "node scraper.js --all",
+    "scrape:rbi": "node scraper.js --sector rbi",
+    "scrape:sebi": "node scraper.js --sector sebi",
+    "scrape:mca": "node scraper.js --sector mca",
+    "scrape:tax": "node scraper.js --sector incomeTax",
+    "scrape:gst": "node scraper.js --sector gst",
+    "scrape:labour": "node scraper.js --sector labour",
+    "scrape:epf": "node scraper.js --sector epf",
+    "scrape:environment": "node scraper.js --sector environment",
+    "scrape:fssai": "node scraper.js --sector fssai",
+    "scrape:healthcare": "node scraper.js --sector healthcare"
+  },
+  "keywords": ["compliance", "india", "scraper", "pdf", "regulations"],
+  "author": "ComplyTrack India",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.0",
+    "chalk": "^4.1.2",
+    "cheerio": "^1.0.0",
+    "commander": "^12.1.0",
+    "ora": "^5.4.1",
+    "pdfkit": "^0.15.0"
+  }
+}

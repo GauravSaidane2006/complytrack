@@ -3,8 +3,7 @@ const nodemailer = require('nodemailer');
 let transporter = null;
 
 const getTransporter = () => {
-  if (transporter) return transporter;
-
+  if (transporter) return transporter;a 
   if (process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
     transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
@@ -66,5 +65,5 @@ exports.sendDeadlineAlertEmail = async (user, complianceItem) => {
     </div>
   `;
 
-  return this.sendEmail({ to: user.email, subject, html });
+  return exports.sendEmail({ to: user.email, subject, html });
 };

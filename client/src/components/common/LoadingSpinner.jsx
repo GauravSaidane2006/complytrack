@@ -3,7 +3,7 @@ export default function LoadingSpinner({ size = 'md', className = '' }) {
 
   return (
     <div className={`flex items-center justify-center ${className}`}>
-      <div className={`${sizes[size]} animate-spin rounded-full border-2 border-slate-300 border-t-emerald-600`} />
+      <div className={`${sizes[size]} animate-spin rounded-full border-2 border-stone-200 border-t-orange-600`} />
     </div>
   )
 }

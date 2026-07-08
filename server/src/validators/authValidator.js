@@ -5,8 +5,10 @@ const registerSchema = Joi.object({
   email: Joi.string().required().lowercase().trim().pattern(/@/).message('Invalid email'),
   password: Joi.string().required().min(6).max(128),
   organizationName: Joi.string().trim().max(200),
+  companyType: Joi.string().valid('private_limited', 'public_limited', 'one_person', 'llp', 'sole_proprietorship', 'partnership', 'huf', 'society').required(),
   phone: Joi.string().trim().allow(''),
   industry: Joi.string().trim().allow(''),
+  sector: Joi.string().valid('service', 'manufacturing', 'trading').required(),
   employeeCount: Joi.alternatives().try(Joi.number().integer().min(1), Joi.valid('', null))
 });
 

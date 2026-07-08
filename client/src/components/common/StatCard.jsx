@@ -1,25 +1,25 @@
-export default function StatCard({ title, value, icon, color = 'emerald', subtitle, onClick }) {
+export default function StatCard({ title, value, icon, color = 'orange', subtitle, onClick }) {
   const colorClasses = {
-    emerald: 'bg-emerald-50 text-emerald-600',
-    blue: 'bg-blue-50 text-blue-600',
-    amber: 'bg-amber-50 text-amber-600',
-    red: 'bg-red-50 text-red-600',
-    slate: 'bg-slate-50 text-slate-600'
+    orange: 'bg-gradient-to-br from-orange-50 to-orange-100/80 text-orange-600',
+    amber: 'bg-gradient-to-br from-amber-50 to-amber-100/80 text-amber-600',
+    rose: 'bg-gradient-to-br from-rose-50 to-rose-100/80 text-rose-600',
+    stone: 'bg-gradient-to-br from-stone-100 to-stone-200/80 text-stone-600',
+    teal: 'bg-gradient-to-br from-teal-50 to-teal-100/80 text-teal-600'
   }
 
   return (
     <div
-      className={`bg-white rounded-xl border border-slate-200 p-3 sm:p-5 ${onClick ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}`}
+      className={`bg-white rounded-2xl border border-stone-200/60 p-4 sm:p-5 shadow-sm ${onClick ? 'cursor-pointer hover:shadow-md hover:border-orange-200/80 transition-all duration-200' : ''}`}
       onClick={onClick}
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-medium text-slate-500">{title}</p>
-          <p className="text-2xl font-bold text-slate-900 mt-1">{value}</p>
-          {subtitle && <p className="text-xs text-slate-400 mt-1">{subtitle}</p>}
+          <p className="text-sm font-medium text-stone-500">{title}</p>
+          <p className="text-2xl font-bold text-stone-900 mt-1 tracking-tight">{value}</p>
+          {subtitle && <p className="text-xs text-stone-400 mt-1">{subtitle}</p>}
         </div>
         {icon && (
-          <div className={`p-2 rounded-lg ${colorClasses[color] || colorClasses.emerald}`}>
+          <div className={`p-2.5 rounded-xl ${colorClasses[color] || colorClasses.orange}`}>
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={icon} />
             </svg>

@@ -13,6 +13,11 @@ const userSchema = new mongoose.Schema({
   organization: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', required: true },
   phone: { type: String, trim: true },
   designation: { type: String, trim: true },
+  isDev: { type: Boolean, default: false },
+  sector: {
+    type: String,
+    enum: ['service', 'manufacturing', 'trading']
+  },
   isActive: { type: Boolean, default: true },
   refreshToken: { type: String },
   lastLogin: Date

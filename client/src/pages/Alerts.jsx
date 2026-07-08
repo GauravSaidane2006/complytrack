@@ -56,11 +56,11 @@ export default function Alerts() {
         actions={
           <div className="flex flex-wrap gap-2">
             <button onClick={handleGenerate}
-              className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50">
+              className="px-4 py-2.5 border border-stone-200 text-stone-700 rounded-xl text-sm font-medium hover:bg-stone-50 transition-colors">
               Check Deadlines
             </button>
             <button onClick={handleMarkAllRead}
-              className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700">
+              className="px-5 py-2.5 bg-gradient-to-r from-orange-600 to-orange-500 text-white rounded-xl text-sm font-medium hover:from-orange-700 hover:to-orange-600 shadow-md shadow-orange-500/20 transition-all duration-200">
               Mark All Read
             </button>
           </div>
@@ -70,35 +70,35 @@ export default function Alerts() {
       {alerts.length === 0 ? (
         <EmptyState title="No alerts" description="You're all caught up!" />
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {alerts.map((alert) => (
             <div
               key={alert._id}
-              className={`bg-white rounded-xl border p-4 flex items-start gap-4 cursor-pointer hover:shadow-sm transition-shadow ${
-                !alert.isRead ? 'border-emerald-300 bg-emerald-50/50' : 'border-slate-200'
+              className={`bg-white rounded-2xl border p-4 flex items-start gap-4 cursor-pointer hover:shadow-sm transition-all duration-200 ${
+                !alert.isRead ? 'border-orange-300 bg-orange-50/40 shadow-sm' : 'border-stone-200/60'
               }`}
               onClick={() => !alert.isRead && handleMarkRead(alert._id)}
             >
-              <div className={`p-2 rounded-lg ${
-                alert.priority === 'high' || alert.priority === 'critical' ? 'bg-red-100' : 'bg-blue-100'
+              <div className={`p-2.5 rounded-xl ${
+                alert.priority === 'high' || alert.priority === 'critical' ? 'bg-rose-100' : 'bg-orange-100'
               }`}>
                 <svg className={`w-5 h-5 ${
-                  alert.priority === 'high' || alert.priority === 'critical' ? 'text-red-600' : 'text-blue-600'
+                  alert.priority === 'high' || alert.priority === 'critical' ? 'text-rose-600' : 'text-orange-600'
                 }`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={alertIcons[alert.type] || alertIcons.general} />
                 </svg>
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <p className={`text-sm font-medium ${!alert.isRead ? 'text-slate-900' : 'text-slate-600'}`}>
+                  <p className={`text-sm font-medium ${!alert.isRead ? 'text-stone-900' : 'text-stone-600'}`}>
                     {alert.title}
                   </p>
-                  {!alert.isRead && <span className="w-2 h-2 bg-emerald-500 rounded-full" />}
+                  {!alert.isRead && <span className="w-2 h-2 bg-orange-500 rounded-full" />}
                 </div>
-                <p className="text-xs text-slate-500">{alert.message}</p>
+                <p className="text-xs text-stone-500">{alert.message}</p>
                 <div className="flex items-center gap-2 mt-2">
                   <StatusBadge status={alert.type} />
-                  <span className="text-xs text-slate-400">{new Date(alert.createdAt).toLocaleString()}</span>
+                  <span className="text-xs text-stone-400">{new Date(alert.createdAt).toLocaleString()}</span>
                 </div>
               </div>
             </div>

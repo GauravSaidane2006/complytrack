@@ -19,12 +19,12 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' })
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen px-4">
-        <div className="fixed inset-0 bg-black/50" onClick={onClose} />
-        <div className={`relative bg-white rounded-xl shadow-xl w-full ${sizes[size]} p-6 z-10`}>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
-            <button onClick={onClose} className="p-1 rounded-md hover:bg-slate-100">
-              <svg className="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="fixed inset-0 bg-stone-900/40 backdrop-blur-sm" onClick={onClose} />
+        <div className={`relative bg-white rounded-2xl shadow-2xl w-full ${sizes[size]} p-6 z-10 border border-stone-200/60`}>
+          <div className="flex items-center justify-between mb-5">
+            <h3 className="text-lg font-semibold text-stone-900">{title}</h3>
+            <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-stone-100 transition-colors">
+              <svg className="w-5 h-5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>

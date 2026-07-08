@@ -15,7 +15,7 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions)
 
   if (result.error && result.error.status === 401) {
-    const refreshResult = await baseQuery('/auth/refresh-token', api, { ...extraOptions, _retry: true })
+    const refreshResult = await baseQuery({ url: '/auth/refresh-token', method: 'POST' }, api, { ...extraOptions, _retry: true })
 
     if (refreshResult.data?.accessToken) {
       api.dispatch(setAccessToken(refreshResult.data.accessToken))
@@ -224,6 +224,41 @@ export const api = createApi({
       invalidatesTags: ['Organization', 'Dashboard']
     }),
 
+    uploadDocument: builder.mutation({
+      query: (formData) => ({
+        url: '/verification/upload',
+        method: 'POST',
+        body: formData,
+        formData: true
+      }),
+      invalidatesTags: ['Organization']
+    }),
+    getVerificationStatus: builder.query({
+      query: () => '/verification/status',
+      providesTags: ['Organization']
+    }),
+    reviewDocument: builder.mutation({
+      query: ({ id, ...data }) => ({
+        url: `/verification/review/${id}`,
+        method: 'PUT',
+        body: data
+      }),
+      invalidatesTags: ['Organization']
+    }),
+    devBypass: builder.mutation({
+      query: () => ({
+        url: '/verification/dev-bypass',
+        method: 'POST'
+      }),
+      invalidatesTags: ['Organization']
+    }),
+    getSectorHelp: builder.query({
+      query: (sector) => `/verification/help/${sector}`
+    }),
+    getHelpContent: builder.query({
+      query: (sector) => `/verification/help-content/${sector}`
+    }),
+
     getUsers: builder.query({
       query: () => '/users',
       providesTags: ['User']
@@ -239,6 +274,24 @@ export const api = createApi({
     deleteUser: builder.mutation({
       query: (id) => ({ url: `/users/${id}`, method: 'DELETE' }),
       invalidatesTags: ['User']
+    }),
+
+    getCompanyReport: builder.query({
+      query: () => '/users/company-report',
+      providesTags: ['Organization', 'Compliance', 'User']
+    }),
+
+    getComplianceOptions: builder.query({
+      query: () => '/compliance-setup/options',
+      providesTags: ['Organization']
+    }),
+    saveComplianceSelection: builder.mutation({
+      query: (data) => ({ url: '/compliance-setup/save', method: 'POST', body: data }),
+      invalidatesTags: ['Organization', 'Compliance', 'ComplianceStats']
+    }),
+    autoCreateCompliances: builder.mutation({
+      query: () => ({ url: '/compliance-setup/auto-create', method: 'POST' }),
+      invalidatesTags: ['Organization', 'Compliance', 'ComplianceStats', 'Dashboard']
     })
   })
 })
@@ -298,8 +351,21 @@ export const {
   useUpdateOrganizationMutation,
   useRefreshHealthScoreMutation,
 
+  useUploadDocumentMutation,
+  useGetVerificationStatusQuery,
+  useReviewDocumentMutation,
+  useDevBypassMutation,
+  useGetSectorHelpQuery,
+  useGetHelpContentQuery,
+
   useGetUsersQuery,
   useCreateUserMutation,
   useUpdateUserMutation,
-  useDeleteUserMutation
+  useDeleteUserMutation,
+
+  useGetCompanyReportQuery,
+
+  useGetComplianceOptionsQuery,
+  useSaveComplianceSelectionMutation,
+  useAutoCreateCompliancesMutation
 } = api

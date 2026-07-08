@@ -68,106 +68,106 @@ export default function Settings() {
     <div className="max-w-3xl space-y-8">
       <PageHeader title="Settings" description="Manage your organization and account" />
 
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
-        <h2 className="text-lg font-semibold text-slate-900 mb-4">Organization</h2>
+      <div className="bg-white rounded-2xl border border-stone-200/60 p-6 shadow-sm">
+        <h2 className="text-lg font-semibold text-stone-900 mb-5">Organization</h2>
         <form onSubmit={handleOrgSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Company Name</label>
+              <label className="block text-sm font-medium text-stone-700 mb-1.5">Company Name</label>
               <input type="text" value={currentOrg.name || ''}
                 onChange={(e) => setOrgForm({ ...org, name: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+                className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Industry</label>
+              <label className="block text-sm font-medium text-stone-700 mb-1.5">Industry</label>
               <input type="text" value={currentOrg.industry || ''}
                 onChange={(e) => setOrgForm({ ...org, industry: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+                className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">GSTIN</label>
+              <label className="block text-sm font-medium text-stone-700 mb-1.5">GSTIN</label>
               <input type="text" value={currentOrg.gstin || ''}
                 onChange={(e) => setOrgForm({ ...org, gstin: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+                className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">PAN</label>
+              <label className="block text-sm font-medium text-stone-700 mb-1.5">PAN</label>
               <input type="text" value={currentOrg.pan || ''}
                 onChange={(e) => setOrgForm({ ...org, pan: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+                className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">City</label>
+              <label className="block text-sm font-medium text-stone-700 mb-1.5">City</label>
               <input type="text" value={currentOrg.city || ''}
                 onChange={(e) => setOrgForm({ ...org, city: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+                className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">State</label>
+              <label className="block text-sm font-medium text-stone-700 mb-1.5">State</label>
               <input type="text" value={currentOrg.state || ''}
                 onChange={(e) => setOrgForm({ ...org, state: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+                className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
             </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
             <div>
-              <span className="text-sm text-slate-500">Compliance Health: </span>
-              <span className={`text-sm font-bold ${(org?.complianceHealthScore || 0) >= 70 ? 'text-emerald-600' : (org?.complianceHealthScore || 0) >= 40 ? 'text-amber-600' : 'text-red-600'}`}>
+              <span className="text-sm text-stone-500">Compliance Health: </span>
+              <span className={`text-sm font-bold ${(org?.complianceHealthScore || 0) >= 70 ? 'text-emerald-600' : (org?.complianceHealthScore || 0) >= 40 ? 'text-amber-600' : 'text-rose-600'}`}>
                 {org?.complianceHealthScore || 0}%
               </span>
               <button type="button" onClick={handleRefreshHealth}
-                className="ml-2 text-xs text-emerald-600 hover:text-emerald-700">Refresh</button>
+                className="ml-2 text-xs text-orange-600 hover:text-orange-700 font-semibold transition-colors">Refresh</button>
             </div>
-            <button type="submit" className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700">
+            <button type="submit" className="px-5 py-2.5 bg-gradient-to-r from-orange-600 to-orange-500 text-white rounded-xl text-sm font-medium hover:from-orange-700 hover:to-orange-600 shadow-md shadow-orange-500/20 transition-all duration-200">
               Save Organization
             </button>
           </div>
         </form>
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
-        <h2 className="text-lg font-semibold text-slate-900 mb-4">Profile</h2>
+      <div className="bg-white rounded-2xl border border-stone-200/60 p-6 shadow-sm">
+        <h2 className="text-lg font-semibold text-stone-900 mb-5">Profile</h2>
         <form onSubmit={handleProfileSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
+              <label className="block text-sm font-medium text-stone-700 mb-1.5">Name</label>
               <input type="text" defaultValue={profile?.name || ''}
                 onChange={(e) => setProfileForm({ ...profile, name: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+                className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
+              <label className="block text-sm font-medium text-stone-700 mb-1.5">Phone</label>
               <input type="text" defaultValue={profile?.phone || ''}
                 onChange={(e) => setProfileForm({ ...profile, phone: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+                className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
             </div>
           </div>
-          <button type="submit" className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700">
+          <button type="submit" className="px-5 py-2.5 bg-gradient-to-r from-orange-600 to-orange-500 text-white rounded-xl text-sm font-medium hover:from-orange-700 hover:to-orange-600 shadow-md shadow-orange-500/20 transition-all duration-200">
             Save Profile
           </button>
         </form>
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
-        <h2 className="text-lg font-semibold text-slate-900 mb-4">Change Password</h2>
+      <div className="bg-white rounded-2xl border border-stone-200/60 p-6 shadow-sm">
+        <h2 className="text-lg font-semibold text-stone-900 mb-5">Change Password</h2>
         <form onSubmit={handlePasswordSubmit} className="space-y-4 max-w-sm">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Current Password</label>
+            <label className="block text-sm font-medium text-stone-700 mb-1.5">Current Password</label>
             <input type="password" value={passwordForm.currentPassword}
               onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+              className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">New Password</label>
+            <label className="block text-sm font-medium text-stone-700 mb-1.5">New Password</label>
             <input type="password" value={passwordForm.newPassword}
               onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm" />
+              className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
           </div>
-          <button type="submit" className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700">
+          <button type="submit" className="px-5 py-2.5 bg-gradient-to-r from-orange-600 to-orange-500 text-white rounded-xl text-sm font-medium hover:from-orange-700 hover:to-orange-600 shadow-md shadow-orange-500/20 transition-all duration-200">
             Change Password
           </button>
         </form>
