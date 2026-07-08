@@ -9,7 +9,11 @@ const connectDB = async () => {
 
     if (!uri || uri.startsWith('mongodb://atlas-sql')) {
       console.log('No remote MongoDB configured. Starting in-memory MongoDB...');
-      mongoServer = await MongoMemoryServer.create();
+      mongoServer = await MongoMemoryServer.create({
+        instance: {
+          startupTimeoutMS: 30000,
+        },
+      });
       uri = mongoServer.getUri();
       console.log(`In-memory MongoDB started at ${uri}`);
     }
