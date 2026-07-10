@@ -49,6 +49,23 @@ const organizationSchema = new mongoose.Schema({
   }],
   complianceSetupComplete: { type: Boolean, default: false },
   complianceHealthScore: { type: Number, default: 0, min: 0, max: 100 },
+  turnover: {
+    type: String,
+    enum: ['below_20L', '20L_40L', '40L_1_5Cr', '1_5Cr_5Cr', 'above_5Cr']
+  },
+  questionnaireCompleted: { type: Boolean, default: false },
+  questionnaireAnswers: {
+    turnover: String,
+    employees: String,
+    hasPhysicalOffice: Boolean,
+    importsExports: Boolean,
+    handlesPersonalData: Boolean,
+    providesFinancialServices: Boolean,
+    usesHazardousMaterials: Boolean,
+    productionCapacity: String,
+    sellsOnline: Boolean,
+    handlesFoodProducts: Boolean
+  },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   isActive: { type: Boolean, default: true }
 }, { timestamps: true });

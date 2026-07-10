@@ -16,6 +16,8 @@ const { sanitize, mongoSanitize } = require('./middleware/sanitize');
 const { globalLimiter, authLimiter, registerLimiter, uploadLimiter, apiLimiter, reportLimiter, dashboardLimiter } = require('./middleware/rateLimiters');
 const routes = require('./routes');
 const { startScheduledJobs } = require('./services/complianceService');
+const { startNoticeJobs } = require('./services/noticeService');
+const { generateAllPdfsOnStartup } = require('./services/sectorPdfService');
 
 const app = express();
 const server = http.createServer(app);
@@ -52,6 +54,10 @@ const uploadDir = process.env.UPLOAD_DIR || 'uploads';
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 const reportsDir = path.join(__dirname, '../reports');
 if (!fs.existsSync(reportsDir)) fs.mkdirSync(reportsDir, { recursive: true });
+const noticesDir = path.join(__dirname, '../notices');
+if (!fs.existsSync(noticesDir)) fs.mkdirSync(noticesDir, { recursive: true });
+const sectorPdfsDir = path.join(__dirname, '../sector-pdfs');
+if (!fs.existsSync(sectorPdfsDir)) fs.mkdirSync(sectorPdfsDir, { recursive: true });
 
 app.use(helmet({
   hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
@@ -82,6 +88,8 @@ app.use('/api/dashboard', dashboardLimiter);
 const authenticate = require('./middleware/auth').authenticate;
 app.use('/uploads', authenticate, express.static(path.join(__dirname, '../uploads')));
 app.use('/reports', authenticate, express.static(path.join(__dirname, '../reports')));
+app.use('/notices', authenticate, express.static(path.join(__dirname, '../notices')));
+app.use('/sector-pdfs', authenticate, express.static(path.join(__dirname, '../sector-pdfs')));
 
 app.use('/api', routes);
 app.use(errorHandler);
@@ -90,6 +98,8 @@ const PORT = process.env.PORT || 5000;
 
 connectDB().then(() => {
   startScheduledJobs();
+  startNoticeJobs();
+  generateAllPdfsOnStartup();
   server.listen(PORT, () => {});
 });
 

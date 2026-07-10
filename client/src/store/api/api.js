@@ -36,7 +36,7 @@ export const api = createApi({
   baseQuery: baseQueryWithReauth,
   tagTypes: [
     'Compliance', 'ComplianceStats', 'User', 'Template',
-    'Report', 'Alert', 'Dashboard', 'Risk', 'Contract', 'Organization'
+    'Report', 'Alert', 'Dashboard', 'Risk', 'Contract', 'Organization', 'Notice', 'Questionnaire', 'SectorPdf'
   ],
   endpoints: (builder) => ({
     login: builder.mutation({
@@ -292,6 +292,49 @@ export const api = createApi({
     autoCreateCompliances: builder.mutation({
       query: () => ({ url: '/compliance-setup/auto-create', method: 'POST' }),
       invalidatesTags: ['Organization', 'Compliance', 'ComplianceStats', 'Dashboard']
+    }),
+
+    getNotices: builder.query({
+      query: (params) => ({ url: '/notices', params }),
+      providesTags: ['Notice']
+    }),
+    getNotice: builder.query({
+      query: (id) => `/notices/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Notice', id }]
+    }),
+    markNoticeRead: builder.mutation({
+      query: (id) => ({ url: `/notices/${id}/read`, method: 'PATCH' }),
+      invalidatesTags: ['Notice']
+    }),
+    markAllNoticesRead: builder.mutation({
+      query: () => ({ url: '/notices/read-all', method: 'PATCH' }),
+      invalidatesTags: ['Notice']
+    }),
+    deleteNotice: builder.mutation({
+      query: (id) => ({ url: `/notices/${id}`, method: 'DELETE' }),
+      invalidatesTags: ['Notice']
+    }),
+
+    getQuestions: builder.query({
+      query: () => '/questionnaire/questions',
+      providesTags: ['Questionnaire']
+    }),
+    saveAnswers: builder.mutation({
+      query: (data) => ({ url: '/questionnaire/save', method: 'POST', body: data }),
+      invalidatesTags: ['Questionnaire', 'Organization', 'Compliance']
+    }),
+    getImpact: builder.query({
+      query: () => '/questionnaire/impact',
+      providesTags: ['Questionnaire']
+    }),
+
+    getSectorPdfs: builder.query({
+      query: () => '/sector-pdfs',
+      providesTags: ['SectorPdf']
+    }),
+    generateSectorPdfs: builder.mutation({
+      query: () => ({ url: '/sector-pdfs/generate', method: 'POST' }),
+      invalidatesTags: ['SectorPdf']
     })
   })
 })
@@ -367,5 +410,18 @@ export const {
 
   useGetComplianceOptionsQuery,
   useSaveComplianceSelectionMutation,
-  useAutoCreateCompliancesMutation
+  useAutoCreateCompliancesMutation,
+
+  useGetNoticesQuery,
+  useGetNoticeQuery,
+  useMarkNoticeReadMutation,
+  useMarkAllNoticesReadMutation,
+  useDeleteNoticeMutation,
+
+  useGetQuestionsQuery,
+  useSaveAnswersMutation,
+  useGetImpactQuery,
+
+  useGetSectorPdfsQuery,
+  useGenerateSectorPdfsMutation
 } = api

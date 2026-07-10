@@ -1,6 +1,7 @@
 const Organization = require('../models/Organization');
 const Compliance = require('../models/Compliance');
 const COMPLIANCE_DATA = require('../data/complianceData');
+const { getMandatoryComplianceIds } = require('../data/questionnaireData');
 
 exports.getComplianceOptions = async (req, res, next) => {
   try {
@@ -37,13 +38,33 @@ exports.getComplianceOptions = async (req, res, next) => {
     const allOptions = [...grouped.common, ...grouped.sector, ...grouped.industry];
     const selectedIds = (organization.selectedCompliances || []).map(s => s.complianceId);
 
+    let impact = { mandatory: [], recommended: [] };
+    if (organization.questionnaireCompleted && organization.questionnaireAnswers) {
+      const answers = organization.questionnaireAnswers;
+      const plainAnswers = {
+        turnover: answers.turnover,
+        employees: answers.employees,
+        hasPhysicalOffice: answers.hasPhysicalOffice ? 'yes' : 'no',
+        importsExports: answers.importsExports ? 'yes' : 'no',
+        handlesPersonalData: answers.handlesPersonalData ? 'yes' : 'no',
+        providesFinancialServices: answers.providesFinancialServices ? 'yes' : 'no',
+        usesHazardousMaterials: answers.usesHazardousMaterials ? 'yes' : 'no',
+        productionCapacity: answers.productionCapacity,
+        sellsOnline: answers.sellsOnline ? 'yes' : 'no',
+        handlesFoodProducts: answers.handlesFoodProducts ? 'yes' : 'no'
+      };
+      impact = getMandatoryComplianceIds(sector, plainAnswers);
+    }
+
     res.json({
       sector,
       industry,
       grouped,
       options: allOptions,
       selectedIds,
-      complianceSetupComplete: organization.complianceSetupComplete
+      complianceSetupComplete: organization.complianceSetupComplete,
+      questionnaireCompleted: organization.questionnaireCompleted,
+      impact
     });
   } catch (error) {
     next(error);
@@ -165,7 +186,8 @@ exports.autoCreateCompliances = async (req, res, next) => {
         priority: template.priority,
         dueDate,
         status: 'pending',
-        isRecurring: freq !== 'one-time' && freq !== 'event-based'
+        isRecurring: freq !== 'one-time' && freq !== 'event-based',
+        penalties: template.penalties || []
       });
     }
 

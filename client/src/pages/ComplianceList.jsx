@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useGetComplianceItemsQuery, useDeleteComplianceItemMutation, useUpdateComplianceStatusMutation } from '../store/api/api'
 import PageHeader from '../components/common/PageHeader'
 import StatusBadge from '../components/common/StatusBadge'
@@ -9,6 +9,7 @@ import Modal from '../components/common/Modal'
 import { toast } from 'react-hot-toast'
 
 export default function ComplianceList() {
+  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [page, setPage] = useState(1)
   const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || '')
@@ -53,44 +54,48 @@ export default function ComplianceList() {
   const pagination = data?.pagination || {}
 
   return (
-    <div>
+    <div className="w-full">
       <PageHeader
         title="Compliance Obligations"
-        description="Track all your compliance items"
+        description="Track and manage all your compliance items"
         actions={
-          <Link to="/compliance/new" className="px-5 py-2.5 bg-gradient-to-r from-orange-600 to-orange-500 text-white rounded-xl text-sm font-medium hover:from-orange-700 hover:to-orange-600 shadow-md shadow-orange-500/20 transition-all duration-200">
+          <Link to="/compliance/new" className="px-6 py-3 bg-gradient-to-r from-orange-600 to-orange-500 text-white rounded-xl text-base font-semibold hover:from-orange-700 hover:to-orange-600 shadow-md shadow-orange-500/20 transition-all duration-200">
             + New Item
           </Link>
         }
       />
 
-      <div className="bg-white rounded-2xl border border-stone-200/60 shadow-sm">
-        <div className="p-4 border-b border-stone-200/60 flex flex-col gap-3">
-          <input
-            type="text"
-            placeholder="Search items..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 min-w-0 px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
-          />
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all">
-            <option value="">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="in-progress">In Progress</option>
-            <option value="completed">Completed</option>
-            <option value="overdue">Overdue</option>
-          </select>
-          <select value={lawFilter} onChange={(e) => setLawFilter(e.target.value)}
-            className="px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all">
-            <option value="">All Laws</option>
-            <option value="GST Act">GST Act</option>
-            <option value="Companies Act">Companies Act</option>
-            <option value="Income Tax Act">Income Tax Act</option>
-            <option value="Labour Laws">Labour Laws</option>
-            <option value="PF Act">PF Act</option>
-            <option value="ESI Act">ESI Act</option>
-          </select>
+      <div className="bg-white rounded-2xl border border-stone-200/60 shadow-sm w-full">
+        <div className="p-5 border-b border-stone-200/60">
+          <div className="flex flex-col lg:flex-row gap-3">
+            <input
+              type="text"
+              placeholder="Search compliance items..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="flex-1 min-w-0 px-4 py-3 border border-stone-200 rounded-xl text-base focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+            />
+            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-4 py-3 border border-stone-200 rounded-xl text-base focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all">
+              <option value="">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="in-progress">In Progress</option>
+              <option value="completed">Completed</option>
+              <option value="overdue">Overdue</option>
+            </select>
+            <select value={lawFilter} onChange={(e) => setLawFilter(e.target.value)}
+              className="px-4 py-3 border border-stone-200 rounded-xl text-base focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all">
+              <option value="">All Laws</option>
+              <option value="GST Act">GST Act</option>
+              <option value="Companies Act">Companies Act</option>
+              <option value="Income Tax Act">Income Tax Act</option>
+              <option value="Labour Laws">Labour Laws</option>
+              <option value="PF Act">PF Act</option>
+              <option value="ESI Act">ESI Act</option>
+              <option value="Factory Act">Factory Act</option>
+              <option value="Environment Act">Environment Act</option>
+            </select>
+          </div>
         </div>
 
         {items.length === 0 ? (
@@ -101,35 +106,40 @@ export default function ComplianceList() {
             <table className="w-full">
               <thead className="bg-stone-50/80">
                 <tr>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider">Title</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider hidden sm:table-cell">Law</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider hidden md:table-cell">Due Date</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider hidden sm:table-cell">Priority</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider">Status</th>
-                  <th className="text-right px-4 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider">Actions</th>
+                  <th className="text-left px-5 py-4 text-sm font-semibold text-stone-500 uppercase tracking-wider">Title</th>
+                  <th className="text-left px-5 py-4 text-sm font-semibold text-stone-500 uppercase tracking-wider hidden md:table-cell">Law</th>
+                  <th className="text-left px-5 py-4 text-sm font-semibold text-stone-500 uppercase tracking-wider hidden lg:table-cell">Category</th>
+                  <th className="text-left px-5 py-4 text-sm font-semibold text-stone-500 uppercase tracking-wider hidden lg:table-cell">Due Date</th>
+                  <th className="text-left px-5 py-4 text-sm font-semibold text-stone-500 uppercase tracking-wider hidden md:table-cell">Priority</th>
+                  <th className="text-left px-5 py-4 text-sm font-semibold text-stone-500 uppercase tracking-wider">Status</th>
+                  <th className="text-right px-5 py-4 text-sm font-semibold text-stone-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-100">
                 {items.map((item) => (
-                  <tr key={item._id} className="hover:bg-orange-50/30 transition-colors">
-                    <td className="px-4 py-3.5">
-                      <Link to={`/compliance/${item._id}`} className="text-sm font-medium text-stone-900 hover:text-orange-600 transition-colors">
-                        {item.title}
-                      </Link>
-                      <p className="text-xs text-stone-500 sm:hidden mt-0.5">{item.law}</p>
+                  <tr key={item._id} className="hover:bg-orange-50/50 transition-colors cursor-pointer group" onClick={() => navigate(`/compliance/${item._id}`)}>
+                    <td className="px-5 py-4">
+                      <p className="text-base font-semibold text-stone-900 group-hover:text-orange-600 transition-colors">{item.title}</p>
+                      <p className="text-sm text-stone-500 md:hidden mt-1">{item.law}</p>
+                      <p className="text-sm text-stone-400 lg:hidden mt-0.5">{item.category}</p>
                     </td>
-                    <td className="px-4 py-3.5 text-sm text-stone-600 hidden sm:table-cell">{item.law}</td>
-                    <td className="px-4 py-3.5 text-sm text-stone-600 hidden md:table-cell">
-                      {new Date(item.dueDate).toLocaleDateString()}
+                    <td className="px-5 py-4 text-base text-stone-600 hidden md:table-cell">{item.law}</td>
+                    <td className="px-5 py-4 hidden lg:table-cell">
+                      <span className="text-sm font-medium text-stone-700 bg-stone-100 px-2.5 py-1 rounded-lg capitalize">{item.category}</span>
                     </td>
-                    <td className="px-4 py-3.5 hidden sm:table-cell"><StatusBadge status={item.priority} type="priority" /></td>
-                    <td className="px-4 py-3.5"><StatusBadge status={item.status} /></td>
-                    <td className="px-4 py-3.5 text-right">
+                    <td className="px-5 py-4 text-base text-stone-600 hidden lg:table-cell">
+                      <span className={new Date(item.dueDate) < new Date() && item.status !== 'completed' ? 'text-red-600 font-semibold' : ''}>
+                        {new Date(item.dueDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </span>
+                    </td>
+                    <td className="px-5 py-4 hidden md:table-cell"><StatusBadge status={item.priority} type="priority" /></td>
+                    <td className="px-5 py-4"><StatusBadge status={item.status} /></td>
+                    <td className="px-5 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-2">
                         <select
                           value={item.status}
                           onChange={(e) => setStatusModal({ _id: item._id, newStatus: e.target.value })}
-                          className="text-xs border border-stone-200 rounded-lg px-2 py-1 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                          className="text-sm border border-stone-200 rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
                         >
                           <option value="pending">Pending</option>
                           <option value="in-progress">In Progress</option>
@@ -138,14 +148,14 @@ export default function ComplianceList() {
                           <option value="waived">Waived</option>
                         </select>
                         <Link to={`/compliance/${item._id}/edit`}
-                          className="p-1 text-stone-400 hover:text-orange-600 transition-colors">
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          className="p-2 text-stone-400 hover:text-orange-600 transition-colors rounded-lg hover:bg-orange-50">
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
                         </Link>
                         <button onClick={() => setDeleteId(item._id)}
-                          className="p-1 text-stone-400 hover:text-rose-600 transition-colors">
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          className="p-2 text-stone-400 hover:text-rose-600 transition-colors rounded-lg hover:bg-rose-50">
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                           </svg>
                         </button>
@@ -159,33 +169,33 @@ export default function ComplianceList() {
         )}
 
         {pagination.pages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-stone-200/60">
-            <p className="text-sm text-stone-500">
+          <div className="flex items-center justify-between px-5 py-4 border-t border-stone-200/60">
+            <p className="text-base text-stone-500">
               Page {pagination.page} of {pagination.pages} ({pagination.total} items)
             </p>
             <div className="flex gap-2">
               <button disabled={page <= 1} onClick={() => setPage(page - 1)}
-                className="px-3 py-1 text-sm border border-stone-200 rounded-lg disabled:opacity-50 hover:bg-stone-50 transition-colors">Previous</button>
+                className="px-4 py-2 text-base border border-stone-200 rounded-xl disabled:opacity-50 hover:bg-stone-50 transition-colors">Previous</button>
               <button disabled={page >= pagination.pages} onClick={() => setPage(page + 1)}
-                className="px-3 py-1 text-sm border border-stone-200 rounded-lg disabled:opacity-50 hover:bg-stone-50 transition-colors">Next</button>
+                className="px-4 py-2 text-base border border-stone-200 rounded-xl disabled:opacity-50 hover:bg-stone-50 transition-colors">Next</button>
             </div>
           </div>
         )}
       </div>
 
       <Modal isOpen={!!deleteId} onClose={() => setDeleteId(null)} title="Delete Compliance Item" size="sm">
-        <p className="text-sm text-stone-600 mb-5">Are you sure you want to delete this compliance item? This action cannot be undone.</p>
+        <p className="text-base text-stone-600 mb-5">Are you sure you want to delete this compliance item? This action cannot be undone.</p>
         <div className="flex justify-end gap-3">
-          <button onClick={() => setDeleteId(null)} className="px-4 py-2 text-sm border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors">Cancel</button>
-          <button onClick={handleDelete} className="px-4 py-2 text-sm bg-gradient-to-r from-rose-600 to-red-600 text-white rounded-xl hover:from-rose-700 hover:to-red-700 shadow-md transition-all duration-200">Delete</button>
+          <button onClick={() => setDeleteId(null)} className="px-5 py-2.5 text-base border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors">Cancel</button>
+          <button onClick={handleDelete} className="px-5 py-2.5 text-base bg-gradient-to-r from-rose-600 to-red-600 text-white rounded-xl hover:from-rose-700 hover:to-red-700 shadow-md transition-all duration-200">Delete</button>
         </div>
       </Modal>
 
       <Modal isOpen={!!statusModal} onClose={() => setStatusModal(null)} title="Update Status" size="sm">
-        <p className="text-sm text-stone-600 mb-5">Change status to <strong className="text-stone-900">{statusModal?.newStatus}</strong>?</p>
+        <p className="text-base text-stone-600 mb-5">Change status to <strong className="text-stone-900">{statusModal?.newStatus}</strong>?</p>
         <div className="flex justify-end gap-3">
-          <button onClick={() => setStatusModal(null)} className="px-4 py-2 text-sm border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors">Cancel</button>
-          <button onClick={handleStatusUpdate} className="px-4 py-2 text-sm bg-gradient-to-r from-orange-600 to-orange-500 text-white rounded-xl hover:from-orange-700 hover:to-orange-600 shadow-md shadow-orange-500/20 transition-all duration-200">Update</button>
+          <button onClick={() => setStatusModal(null)} className="px-5 py-2.5 text-base border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors">Cancel</button>
+          <button onClick={handleStatusUpdate} className="px-5 py-2.5 text-base bg-gradient-to-r from-orange-600 to-orange-500 text-white rounded-xl hover:from-orange-700 hover:to-orange-600 shadow-md shadow-orange-500/20 transition-all duration-200">Update</button>
         </div>
       </Modal>
     </div>

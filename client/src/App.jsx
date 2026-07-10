@@ -21,6 +21,9 @@ import Contracts from './pages/Contracts'
 import Settings from './pages/Settings'
 import ComplianceSetup from './pages/ComplianceSetup'
 import CompanyReport from './pages/CompanyReport'
+import Notices from './pages/Notices'
+import Questionnaire from './pages/Questionnaire'
+import SectorPdfs from './pages/SectorPdfs'
 
 function ProtectedRoute({ children, allowedRoles }) {
   const { isAuthenticated, user } = useSelector((state) => state.auth)
@@ -62,6 +65,11 @@ export default function App() {
           <ComplianceSetup />
         </ProtectedRoute>
       } />
+      <Route path="/questionnaire" element={
+        <ProtectedRoute>
+          <Questionnaire />
+        </ProtectedRoute>
+      } />
 
       <Route element={<DashboardLayout />}>
         <Route path="/dashboard" element={<Dashboard />} />
@@ -72,6 +80,13 @@ export default function App() {
         <Route path="/templates" element={<Templates />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/alerts" element={<Alerts />} />
+        <Route path="/notices" element={<Notices />} />
+        <Route path="/questionnaire" element={
+          <ProtectedRoute>
+            <Questionnaire />
+          </ProtectedRoute>
+        } />
+        <Route path="/sector-pdfs" element={<SectorPdfs />} />
         <Route path="/risks" element={<RiskAssessment />} />
         <Route path="/contracts" element={<Contracts />} />
         <Route path="/settings" element={<Settings />} />

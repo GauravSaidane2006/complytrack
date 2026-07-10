@@ -1,0 +1,51 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: complytrack-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - complytrack-network
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: complytrack-server
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    env_file:
+      - ./server/.env.docker
+    ports:
+      - "5000:5000"
+    volumes:
+      - uploads:/app/uploads
+      - reports:/app/reports
+    networks:
+      - complytrack-network
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: complytrack-client
+    restart: unless-stopped
+    depends_on:
+      - server
+    ports:
+      - "80:80"
+    networks:
+      - complytrack-network
+
+volumes:
+  mongo_data:
+  uploads:
+  reports:
+
+networks:
+  complytrack-network:
+    driver: bridge
