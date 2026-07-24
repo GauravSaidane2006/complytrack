@@ -464,5 +464,9 @@ export const {
   useGetDeveloperOrganizationsQuery,
   useGetDeveloperOrganizationDetailsQuery,
   useGetDeveloperComplianceQuery,
-  useGetDeveloperAlertsQuery
+  useGetDeveloperAlertsQuery,
+
+  useGetOnboardingRequirementsQuery,
+  useGetOnboardingHelpQuery,
+  useGetDocumentDetailQuery
 } = api
