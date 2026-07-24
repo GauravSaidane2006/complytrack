@@ -9,8 +9,8 @@ router.use(authenticate);
 router.get('/stats', apiLimiter, contractController.getContractStats);
 router.get('/', apiLimiter, contractController.getContracts);
 router.get('/:id', apiLimiter, contractController.getContract);
-router.post('/', authorize('admin', 'manager'), apiLimiter, contractController.createContract);
-router.put('/:id', authorize('admin', 'manager'), apiLimiter, contractController.updateContract);
-router.delete('/:id', authorize('admin'), apiLimiter, contractController.deleteContract);
+router.post('/', authorize('admin', 'manager', 'developer'), apiLimiter, contractController.createContract);
+router.put('/:id', authorize('admin', 'manager', 'developer'), apiLimiter, contractController.updateContract);
+router.delete('/:id', authorize('admin', 'developer'), apiLimiter, contractController.deleteContract);
 
 module.exports = router;

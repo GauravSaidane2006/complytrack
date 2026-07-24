@@ -9,6 +9,8 @@ import DocumentUpload from './pages/DocumentUpload'
 import VerificationStatus from './pages/VerificationStatus'
 import DocumentHelp from './pages/DocumentHelp'
 import Dashboard from './pages/Dashboard'
+import DeveloperDashboard from './pages/DeveloperDashboard'
+import DeveloperOrganizationDetails from './pages/DeveloperOrganizationDetails'
 import ComplianceList from './pages/ComplianceList'
 import ComplianceForm from './pages/ComplianceForm'
 import ComplianceDetail from './pages/ComplianceDetail'
@@ -30,6 +32,24 @@ function ProtectedRoute({ children, allowedRoles }) {
   if (!isAuthenticated) return <Navigate to="/login" replace />
   if (allowedRoles && !allowedRoles.includes(user?.role)) {
     return <Navigate to="/dashboard" replace />
+  }
+  return children
+}
+
+function DeveloperRoute({ children }) {
+  const { isAuthenticated, user } = useSelector((state) => state.auth)
+  if (!isAuthenticated) return <Navigate to="/login" replace />
+  if (user?.role !== 'developer' && user?.role !== 'superadmin') {
+    return <Navigate to="/dashboard" replace />
+  }
+  return children
+}
+
+function CompanyAdminRoute({ children }) {
+  const { isAuthenticated, user } = useSelector((state) => state.auth)
+  if (!isAuthenticated) return <Navigate to="/login" replace />
+  if (user?.role === 'developer') {
+    return <Navigate to="/developer" replace />
   }
   return children
 }
@@ -72,7 +92,21 @@ export default function App() {
       } />
 
       <Route element={<DashboardLayout />}>
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard" element={
+          <CompanyAdminRoute>
+            <Dashboard />
+          </CompanyAdminRoute>
+        } />
+        <Route path="/developer" element={
+          <DeveloperRoute>
+            <DeveloperDashboard />
+          </DeveloperRoute>
+        } />
+        <Route path="/developer/organizations/:id" element={
+          <DeveloperRoute>
+            <DeveloperOrganizationDetails />
+          </DeveloperRoute>
+        } />
         <Route path="/compliance" element={<ComplianceList />} />
         <Route path="/compliance/new" element={<ComplianceForm />} />
         <Route path="/compliance/:id" element={<ComplianceDetail />} />
@@ -92,7 +126,7 @@ export default function App() {
         <Route path="/settings" element={<Settings />} />
         <Route path="/company-report" element={<CompanyReport />} />
         <Route path="/users" element={
-          <ProtectedRoute allowedRoles={['admin', 'superadmin']}>
+          <ProtectedRoute allowedRoles={['admin', 'superadmin', 'developer']}>
             <Users />
           </ProtectedRoute>
         } />

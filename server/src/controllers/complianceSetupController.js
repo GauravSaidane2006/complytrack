@@ -15,7 +15,10 @@ exports.getComplianceOptions = async (req, res, next) => {
       return res.status(400).json({ message: 'Sector and industry must be set on your organization.' });
     }
 
-    const common = COMPLIANCE_DATA.common || [];
+    const common = (COMPLIANCE_DATA.common || []).filter(item => {
+      if (!item.sectors) return true;
+      return item.sectors.includes(sector);
+    });
     const sectorIndustries = COMPLIANCE_DATA[sector] || {};
     const industrySpecific = sectorIndustries[industry] || [];
     const commonForSector = COMPLIANCE_DATA.commonIndustries?.[sector] || [];
@@ -119,7 +122,10 @@ exports.autoCreateCompliances = async (req, res, next) => {
     }
 
     const { sector, industry } = organization;
-    const common = COMPLIANCE_DATA.common || [];
+    const common = (COMPLIANCE_DATA.common || []).filter(item => {
+      if (!item.sectors) return true;
+      return item.sectors.includes(sector);
+    });
     const sectorIndustries = COMPLIANCE_DATA[sector] || {};
     const industrySpecific = sectorIndustries[industry] || [];
     const commonForSector = COMPLIANCE_DATA.commonIndustries?.[sector] || [];

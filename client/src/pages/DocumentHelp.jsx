@@ -1,140 +1,177 @@
+import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { useGetHelpContentQuery } from '../store/api/api';
+import { useGetOnboardingHelpQuery } from '../store/api/api';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
-const SECTOR_INFO = {
-  service: {
-    title: 'Service Sector',
-    description: 'IT, Telecom, BPO, Consulting, Digital Services',
-    color: 'orange'
-  },
-  manufacturing: {
-    title: 'Manufacturing Sector',
-    description: 'Factories, Industrial, Production, Assembly',
-    color: 'amber'
-  },
-  trading: {
-    title: 'Trading Sector',
-    description: 'Shops, Retail, Wholesale, Buying & Selling',
-    color: 'amber'
-  }
+const PRIORITY_COLORS = {
+  critical: 'bg-red-100 text-red-800',
+  high: 'bg-orange-100 text-orange-800',
+  medium: 'bg-amber-100 text-amber-800',
+  low: 'bg-stone-100 text-stone-600'
 };
 
 export default function DocumentHelp() {
   const navigate = useNavigate();
   const { user, organization } = useSelector((state) => state.auth);
   const sector = user?.sector || organization?.sector || 'service';
-  const { data: helpData, isLoading } = useGetHelpContentQuery(sector);
-  const sectorInfo = SECTOR_INFO[sector];
+  const industry = organization?.industry || '';
+  const [expandedDoc, setExpandedDoc] = useState(null);
+
+  const { data: helpData, isLoading } = useGetOnboardingHelpQuery({ sector, industry });
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-stone-900 via-stone-800 to-orange-950 flex items-center justify-center">
+      <div className="min-h-screen bg-stone-100 flex items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
     );
   }
 
-  const colorClasses = {
-    orange: 'bg-orange-100 text-orange-800 border-orange-200',
-    amber: 'bg-amber-100 text-amber-800 border-amber-200',
-    teal: 'bg-teal-100 text-teal-800 border-teal-200'
-  };
+  const allDocs = helpData?.allDocs || [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-900 via-stone-800 to-orange-950 p-4 md:p-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 mb-4 shadow-xl shadow-orange-500/30">
-            <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+    <div className="min-h-screen bg-stone-100">
+      <div className="w-full px-4 py-8 md:px-8 lg:px-16">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-orange-600 mb-6 shadow-xl">
+              <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h1 className="text-4xl font-bold text-stone-900 tracking-tight mb-3">Document Help Center</h1>
+            <p className="text-xl text-stone-600">
+              Complete guide to obtain all required documents for your {helpData?.sectorLabel || sector} business
+            </p>
           </div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">Document Help Center</h1>
-          <p className="text-stone-400 mt-2">Step-by-step guide to obtain required documents</p>
-          <div className={`mt-3 inline-block px-3 py-1 rounded-full text-sm border ${colorClasses[sectorInfo.color]}`}>
-            {sectorInfo.title}
-          </div>
-        </div>
 
-        <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 border border-stone-200/60">
-          {helpData && (
-            <>
-              <div className="mb-8">
-                <h2 className="text-2xl font-bold text-stone-900 mb-2">{helpData.title}</h2>
-                <p className="text-stone-500">{helpData.description}</p>
-              </div>
+          <div className="bg-white rounded-2xl shadow-2xl border-2 border-stone-300 mb-8">
+            <div className="p-6 border-b-2 border-stone-300 bg-stone-50">
+              <h2 className="text-2xl font-bold text-stone-900 mb-2">{helpData?.sectorLabel} Sector Requirements</h2>
+              <p className="text-stone-600">
+                {allDocs.length} documents required for {industry || 'your business'}
+              </p>
+            </div>
 
-              <div className="mb-8">
-                <h3 className="text-lg font-semibold text-stone-900 mb-4">How to Obtain Required Documents</h3>
-                <div className="space-y-6">
-                  {helpData.steps.map((step, i) => (
-                    <div key={i} className="border border-stone-200 rounded-2xl p-5">
-                      <div className="flex items-start gap-4">
-                        <div className="w-10 h-10 bg-gradient-to-br from-orange-100 to-orange-50 text-orange-600 rounded-xl flex items-center justify-center font-bold flex-shrink-0">
-                          {step.step}
+            <div className="p-6">
+              <div className="space-y-4">
+                {allDocs.map((doc, index) => (
+                  <div
+                    key={doc.type}
+                    className={`border-2 rounded-xl overflow-hidden transition-all duration-200 ${
+                      expandedDoc === doc.type ? 'border-orange-300' : 'border-stone-200 hover:border-stone-300'
+                    }`}
+                  >
+                    <div
+                      onClick={() => setExpandedDoc(expandedDoc === doc.type ? null : doc.type)}
+                      className="flex items-center gap-4 p-5 cursor-pointer"
+                    >
+                      <div className="w-12 h-12 bg-stone-100 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">
+                        {doc.icon}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="font-bold text-stone-900">{doc.name}</h3>
+                          <span className={`px-2 py-0.5 rounded text-xs font-bold ${PRIORITY_COLORS[doc.priority] || PRIORITY_COLORS.medium}`}>
+                            {doc.priority?.toUpperCase() || 'REQUIRED'}
+                          </span>
                         </div>
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-stone-900">{step.title}</h4>
-                          <p className="text-sm text-stone-500 mt-1">{step.description}</p>
-                          
-                          <div className="mt-3 p-3.5 bg-stone-50 rounded-xl">
-                            <div className="flex items-center gap-2 mb-2">
-                              <svg className="w-4 h-4 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                              </svg>
-                              <span className="text-sm font-medium text-stone-700">{step.portal}</span>
+                        <p className="text-sm text-stone-500 mt-1 line-clamp-1">{doc.description}</p>
+                      </div>
+                      <svg className={`w-5 h-5 text-stone-400 transition-transform ${expandedDoc === doc.type ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+
+                    {expandedDoc === doc.type && (
+                      <div className="px-5 pb-5 border-t border-stone-200">
+                        <div className="pt-4 space-y-4">
+                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <h4 className="font-bold text-blue-900 mb-2">Why is this required?</h4>
+                            <p className="text-sm text-blue-800 leading-relaxed">{doc.whyNeeded}</p>
+                          </div>
+
+                          <div className="bg-stone-50 border border-stone-200 rounded-lg p-4">
+                            <h4 className="font-bold text-stone-900 mb-2">How to obtain</h4>
+                            <div className="flex items-center gap-2 mb-3">
+                              <span className="text-sm font-medium text-stone-600">Official Portal:</span>
                               <a
-                                href={step.url}
+                                href={doc.portal?.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-sm text-orange-600 hover:text-orange-700 font-semibold transition-colors"
+                                className="text-sm font-bold text-orange-600 hover:text-orange-700 underline"
                               >
-                                Visit Portal →
+                                {doc.portal?.name || 'Government Portal'} ↗
                               </a>
                             </div>
-                            <p className="text-xs text-stone-500 mb-2">Required documents:</p>
-                            <div className="flex flex-wrap gap-2">
-                              {step.documents.map((doc, j) => (
-                                <span key={j} className="text-xs bg-white border border-stone-200 text-stone-600 px-2.5 py-1 rounded-lg">
-                                  {doc}
-                                </span>
-                              ))}
+                            {doc.process && (
+                              <ol className="space-y-2">
+                                {doc.process.map((step, i) => (
+                                  <li key={i} className="flex gap-3 text-sm">
+                                    <span className="w-6 h-6 bg-orange-100 text-orange-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
+                                      {i + 1}
+                                    </span>
+                                    <span className="text-stone-700">{step}</span>
+                                  </li>
+                                ))}
+                              </ol>
+                            )}
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="bg-white border border-stone-200 rounded-lg p-4">
+                              <h4 className="font-bold text-stone-900 mb-2">Documents Required</h4>
+                              <ul className="space-y-1.5">
+                                {(doc.documentsRequired || []).map((item, i) => (
+                                  <li key={i} className="flex items-start gap-2 text-sm text-stone-600">
+                                    <span className="text-orange-500 mt-1">•</span>
+                                    {item}
+                                  </li>
+                                ))}
+                              </ul>
                             </div>
-                            <p className="text-xs text-stone-500 mt-2">
-                              <span className="font-medium">Estimated time:</span> {step.estimatedTime}
-                            </p>
+
+                            <div className="space-y-3">
+                              <div className="bg-white border border-stone-200 rounded-lg p-4">
+                                <h4 className="font-bold text-stone-900 mb-2">Details</h4>
+                                <div className="space-y-2 text-sm">
+                                  <div className="flex justify-between">
+                                    <span className="text-stone-500">Processing Time:</span>
+                                    <span className="font-medium text-stone-700">{doc.estimatedTime}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-stone-500">Estimated Cost:</span>
+                                    <span className="font-medium text-stone-700">{doc.estimatedCost}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-stone-500">Validity:</span>
+                                    <span className="font-medium text-stone-700">{doc.validity}</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                                <p className="text-xs font-medium text-amber-800">
+                                  <span className="font-bold">Legal Reference:</span> {doc.officialRef}
+                                </p>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {helpData.faq && helpData.faq.length > 0 && (
-                <div className="mb-8">
-                  <h3 className="text-lg font-semibold text-stone-900 mb-4">Frequently Asked Questions</h3>
-                  <div className="space-y-3">
-                    {helpData.faq.map((item, i) => (
-                      <div key={i} className="border border-stone-200 rounded-xl p-4">
-                        <h4 className="font-medium text-stone-900">{item.question}</h4>
-                        <p className="text-sm text-stone-600 mt-2">{item.answer}</p>
-                      </div>
-                    ))}
+                    )}
                   </div>
-                </div>
-              )}
-            </>
-          )}
+                ))}
+              </div>
+            </div>
+          </div>
 
-          <div className="border-t border-stone-200 pt-6 mt-6">
-            <h3 className="text-lg font-semibold text-stone-900 mb-4">Still Need Help?</h3>
+          <div className="bg-white rounded-2xl shadow-2xl border-2 border-stone-300 p-6 mb-8">
+            <h3 className="text-xl font-bold text-stone-900 mb-4">Still Need Help?</h3>
             <div className="grid sm:grid-cols-2 gap-4">
               <button
                 onClick={() => navigate('/contact-support')}
-                className="p-4 border border-stone-200 rounded-2xl hover:border-orange-300 hover:bg-orange-50/30 transition-all duration-200 text-left"
+                className="p-4 border-2 border-stone-200 rounded-xl hover:border-orange-300 hover:bg-orange-50/30 transition-all duration-200 text-left"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-orange-100 text-orange-600 rounded-xl flex items-center justify-center">
@@ -149,24 +186,22 @@ export default function DocumentHelp() {
                 </div>
               </button>
 
-              <a
-                href="https://wa.me/919876543210"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-4 border border-stone-200 rounded-2xl hover:border-emerald-300 hover:bg-emerald-50/30 transition-all duration-200"
+              <button
+                onClick={() => navigate('/onboarding')}
+                className="p-4 border-2 border-stone-200 rounded-xl hover:border-orange-300 hover:bg-orange-50/30 transition-all duration-200 text-left"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center">
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                  <div className="w-10 h-10 bg-orange-100 text-orange-600 rounded-xl flex items-center justify-center">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                     </svg>
                   </div>
                   <div>
-                    <h4 className="font-medium text-stone-900">WhatsApp Support</h4>
-                    <p className="text-xs text-stone-500">Chat with us instantly</p>
+                    <h4 className="font-medium text-stone-900">Upload Documents</h4>
+                    <p className="text-xs text-stone-500">Upload your required documents</p>
                   </div>
                 </div>
-              </a>
+              </button>
             </div>
 
             <div className="mt-4 p-4 bg-stone-50 rounded-xl">
@@ -176,24 +211,15 @@ export default function DocumentHelp() {
               <p className="text-sm text-stone-600">Email: support@complytrack.in</p>
             </div>
           </div>
-        </div>
 
-        <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-          <button
-            onClick={() => navigate('/register/documents')}
-            className="px-6 py-3 bg-gradient-to-r from-orange-600 to-orange-500 text-white rounded-xl font-medium text-sm hover:from-orange-700 hover:to-orange-600 flex items-center justify-center gap-2 shadow-lg shadow-orange-500/25 transition-all duration-200"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-            </svg>
-            Upload Documents
-          </button>
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="px-6 py-3 border border-stone-200 text-stone-700 rounded-xl font-medium text-sm hover:bg-stone-50 transition-colors"
-          >
-            Back to Dashboard
-          </button>
+          <div className="flex justify-center">
+            <button
+              onClick={() => navigate(-1)}
+              className="px-8 py-3 border-2 border-stone-300 text-stone-700 rounded-xl font-bold hover:bg-stone-50 transition-colors"
+            >
+              ← Back
+            </button>
+          </div>
         </div>
       </div>
     </div>

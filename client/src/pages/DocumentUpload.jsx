@@ -1,44 +1,26 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { useUploadDocumentMutation, useGetVerificationStatusQuery, useDevBypassMutation } from '../store/api/api';
+import { useUploadDocumentMutation, useGetOnboardingRequirementsQuery, useDevBypassMutation } from '../store/api/api';
 import { toast } from 'react-hot-toast';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-
-const SECTOR_DOCS = {
-  service: [
-    { type: 'company_registration', name: 'Company Registration Certificate', required: true, icon: '📄' },
-    { type: 'gst_certificate', name: 'GST Certificate', required: true, icon: '📋' },
-    { type: 'pan_card', name: 'PAN Card', required: true, icon: '💳' }
-  ],
-  manufacturing: [
-    { type: 'company_registration', name: 'Company Registration Certificate', required: true, icon: '📄' },
-    { type: 'factory_license', name: 'Factory License', required: true, icon: '🏭' },
-    { type: 'pollution_consent', name: 'Pollution Board Consent', required: true, icon: '🌿' },
-    { type: 'pan_card', name: 'PAN Card', required: true, icon: '💳' }
-  ],
-  trading: [
-    { type: 'gst_certificate', name: 'GST Certificate', required: true, icon: '📋' },
-    { type: 'shop_establishment', name: 'Shop & Establishment License', required: true, icon: '🏪' },
-    { type: 'pan_card', name: 'PAN Card', required: true, icon: '💳' }
-  ]
-};
 
 export default function DocumentUpload() {
   const navigate = useNavigate();
   const { user, organization } = useSelector((state) => state.auth);
   const [uploadDocument, { isLoading: uploading }] = useUploadDocumentMutation();
   const [devBypass, { isLoading: bypassing }] = useDevBypassMutation();
-  const { data: verificationData, isLoading: loadingStatus } = useGetVerificationStatusQuery();
+  const { data: onboardingData, isLoading: loadingStatus } = useGetOnboardingRequirementsQuery();
   
   const [uploadedFiles, setUploadedFiles] = useState({});
   const [dragOver, setDragOver] = useState(null);
   const fileInputRefs = useRef({});
 
   const sector = user?.sector || organization?.sector || 'service';
-  const requiredDocs = SECTOR_DOCS[sector] || [];
+  const industry = organization?.industry || '';
+  const requiredDocs = [...(onboardingData?.commonDocs || []), ...(onboardingData?.industryDocs || [])];
   const existingDocs = organization?.documents || [];
-  const verificationStatus = verificationData?.verificationStatus || organization?.verificationStatus;
+  const verificationStatus = onboardingData?.verificationStatus || organization?.verificationStatus;
 
   if (verificationStatus === 'verified') {
     return (

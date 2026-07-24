@@ -4,11 +4,13 @@ const { escapeRegex } = require('../utils/security');
 
 exports.getComplianceItems = async (req, res, next) => {
   try {
-    const filter = { organization: req.organizationId };
+    const isDevUser = req.user.role === 'developer' || req.user.role === 'superadmin';
+    const filter = isDevUser ? {} : { organization: req.organizationId };
     if (req.query.status) filter.status = { $in: req.query.status.split(',') };
     if (req.query.law) filter.law = { $in: req.query.law.split(',') };
     if (req.query.priority) filter.priority = { $in: req.query.priority.split(',') };
     if (req.query.assignedTo) filter.assignedTo = { $in: req.query.assignedTo.split(',') };
+    if (req.query.organization && isDevUser) filter.organization = req.query.organization;
     if (req.query.search) {
       const sanitizedSearch = escapeRegex(req.query.search);
       filter.$or = [
@@ -49,9 +51,10 @@ exports.getComplianceItems = async (req, res, next) => {
 
 exports.getComplianceItem = async (req, res, next) => {
   try {
+    const isDevUser = req.user.role === 'developer' || req.user.role === 'superadmin';
     const item = await Compliance.findOne({
       _id: req.params.id,
-      organization: req.organizationId
+      ...(isDevUser ? {} : { organization: req.organizationId })
     }).populate('assignedTo', 'name email').populate('completedBy', 'name');
 
     if (!item) return res.status(404).json({ message: 'Compliance item not found.' });
@@ -159,9 +162,11 @@ exports.updateStatus = async (req, res, next) => {
 
 exports.getComplianceStats = async (req, res, next) => {
   try {
+    const isDevUser = req.user.role === 'developer' || req.user.role === 'superadmin';
+    const orgFilter = isDevUser ? {} : { organization: req.organizationId };
     const now = new Date();
     const pipeline = [
-      { $match: { organization: req.organizationId } },
+      { $match: orgFilter },
       {
         $group: {
           _id: null,
@@ -182,19 +187,19 @@ exports.getComplianceStats = async (req, res, next) => {
     const stats = await Compliance.aggregate(pipeline);
 
     const overdueItems = await Compliance.countDocuments({
-      organization: req.organizationId,
+      ...orgFilter,
       dueDate: { $lt: now },
       status: { $nin: ['completed', 'waived'] }
     });
 
     const upcomingDeadlines = await Compliance.find({
-      organization: req.organizationId,
+      ...orgFilter,
       dueDate: { $gte: now, $lte: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000) },
       status: { $nin: ['completed', 'waived'] }
     }).populate('assignedTo', 'name email').sort('dueDate').limit(10);
 
     const lawDistribution = await Compliance.aggregate([
-      { $match: { organization: req.organizationId } },
+      { $match: orgFilter },
       { $group: { _id: '$law', count: { $sum: 1 } } },
       { $sort: { count: -1 } }
     ]);

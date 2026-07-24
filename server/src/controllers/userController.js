@@ -14,7 +14,8 @@ const validatePassword = (password) => {
 
 exports.getUsers = async (req, res, next) => {
   try {
-    const filter = req.user.role === 'superadmin' ? {} : { organization: req.organizationId };
+    const isDevUser = req.user.role === 'developer' || req.user.role === 'superadmin';
+    const filter = isDevUser ? {} : { organization: req.organizationId };
     const users = await User.find(filter).select('-password -refreshToken -__v').sort('-createdAt');
     res.json(users);
   } catch (error) {
@@ -24,9 +25,10 @@ exports.getUsers = async (req, res, next) => {
 
 exports.getUser = async (req, res, next) => {
   try {
+    const isDevUser = req.user.role === 'developer' || req.user.role === 'superadmin';
     const user = await User.findOne({
       _id: req.params.id,
-      ...(req.user.role !== 'superadmin' && { organization: req.organizationId })
+      ...(isDevUser ? {} : { organization: req.organizationId })
     }).select('-password -refreshToken -__v');
 
     if (!user) return res.status(404).json({ message: 'User not found.' });
@@ -40,7 +42,7 @@ exports.createUser = async (req, res, next) => {
   try {
     const { name, email, password, role, phone, designation } = req.body;
 
-    if (req.user.isDev) {
+    if (req.user.isDev || req.user.role === 'developer') {
       const validationError = validatePassword(password);
       if (validationError) {
         return res.status(400).json({ message: validationError });
@@ -81,7 +83,7 @@ exports.createUser = async (req, res, next) => {
 exports.updateUser = async (req, res, next) => {
   try {
     const allowedFields = ['name', 'email', 'phone', 'designation', 'isActive'];
-    if (req.user.role === 'superadmin') {
+    if (req.user.role === 'superadmin' || req.user.role === 'developer') {
       allowedFields.push('role');
     }
 
@@ -90,7 +92,7 @@ exports.updateUser = async (req, res, next) => {
       if (req.body[field] !== undefined) updates[field] = req.body[field];
     }
 
-    if (updates.role && req.user.role !== 'superadmin') {
+    if (updates.role && req.user.role !== 'superadmin' && req.user.role !== 'developer') {
       delete updates.role;
     }
 
@@ -113,9 +115,10 @@ exports.deleteUser = async (req, res, next) => {
       return res.status(400).json({ message: 'Cannot delete your own account.' });
     }
 
+    const isDevUser = req.user.role === 'developer' || req.user.role === 'superadmin';
     const user = await User.findOneAndDelete({
       _id: req.params.id,
-      organization: req.organizationId
+      ...(isDevUser ? {} : { organization: req.organizationId })
     });
     if (!user) return res.status(404).json({ message: 'User not found.' });
     res.json({ message: 'User deleted.' });

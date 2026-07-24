@@ -16,6 +16,8 @@ router.use('/compliance-setup', require('./complianceSetup'));
 router.use('/notices', require('./notices'));
 router.use('/questionnaire', require('./questionnaire'));
 router.use('/sector-pdfs', require('./sectorPdfs'));
+router.use('/developer', require('./developer'));
+router.use('/onboarding', require('./onboarding'));
 
 router.get('/health', (req, res) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });

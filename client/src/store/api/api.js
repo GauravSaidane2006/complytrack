@@ -36,7 +36,7 @@ export const api = createApi({
   baseQuery: baseQueryWithReauth,
   tagTypes: [
     'Compliance', 'ComplianceStats', 'User', 'Template',
-    'Report', 'Alert', 'Dashboard', 'Risk', 'Contract', 'Organization', 'Notice', 'Questionnaire', 'SectorPdf'
+    'Report', 'Alert', 'Dashboard', 'Risk', 'Contract', 'Organization', 'Notice', 'Questionnaire', 'SectorPdf', 'Developer'
   ],
   endpoints: (builder) => ({
     login: builder.mutation({
@@ -259,6 +259,20 @@ export const api = createApi({
       query: (sector) => `/verification/help-content/${sector}`
     }),
 
+    getOnboardingRequirements: builder.query({
+      query: () => '/onboarding/requirements',
+      providesTags: ['Organization']
+    }),
+    getOnboardingHelp: builder.query({
+      query: ({ sector, industry }) => ({
+        url: '/onboarding/help',
+        params: { sector, industry }
+      })
+    }),
+    getDocumentDetail: builder.query({
+      query: ({ sector, docType }) => `/onboarding/help/${sector}/${docType}`
+    }),
+
     getUsers: builder.query({
       query: () => '/users',
       providesTags: ['User']
@@ -335,6 +349,27 @@ export const api = createApi({
     generateSectorPdfs: builder.mutation({
       query: () => ({ url: '/sector-pdfs/generate', method: 'POST' }),
       invalidatesTags: ['SectorPdf']
+    }),
+
+    getDeveloperStats: builder.query({
+      query: () => '/developer/stats',
+      providesTags: ['Developer']
+    }),
+    getDeveloperOrganizations: builder.query({
+      query: (params) => ({ url: '/developer/organizations', params }),
+      providesTags: ['Developer']
+    }),
+    getDeveloperOrganizationDetails: builder.query({
+      query: (id) => `/developer/organizations/${id}`,
+      providesTags: ['Developer']
+    }),
+    getDeveloperCompliance: builder.query({
+      query: (params) => ({ url: '/developer/compliance', params }),
+      providesTags: ['Developer']
+    }),
+    getDeveloperAlerts: builder.query({
+      query: (params) => ({ url: '/developer/alerts', params }),
+      providesTags: ['Developer']
     })
   })
 })
@@ -423,5 +458,11 @@ export const {
   useGetImpactQuery,
 
   useGetSectorPdfsQuery,
-  useGenerateSectorPdfsMutation
+  useGenerateSectorPdfsMutation,
+
+  useGetDeveloperStatsQuery,
+  useGetDeveloperOrganizationsQuery,
+  useGetDeveloperOrganizationDetailsQuery,
+  useGetDeveloperComplianceQuery,
+  useGetDeveloperAlertsQuery
 } = api

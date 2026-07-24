@@ -14,7 +14,8 @@ function ensureDir(dir) {
 exports.listPdfs = async (req, res) => {
   try {
     const user = req.user;
-    const isAdmin = user.role === 'admin' || user.role === 'superadmin';
+    const isDevUser = user.role === 'developer' || user.role === 'superadmin';
+    const isAdmin = user.role === 'admin' || user.role === 'superadmin' || user.role === 'developer';
 
     const filter = { isActive: true, pdfType: 'full_reference' };
     if (!isAdmin) {
@@ -29,7 +30,7 @@ exports.listPdfs = async (req, res) => {
     }
 
     const pdfs = await SectorPdf.find(filter).sort({ sector: 1, industry: 1 });
-    res.json({ pdfs, isAdmin });
+    res.json({ pdfs, isAdmin: isDevUser || isAdmin });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -107,7 +108,7 @@ exports.viewPersonalizedPdf = async (req, res) => {
 exports.generateAllPdfs = async (req, res) => {
   try {
     const user = req.user;
-    const isAdmin = user.role === 'admin' || user.role === 'superadmin';
+    const isAdmin = user.role === 'admin' || user.role === 'superadmin' || user.role === 'developer';
     if (!isAdmin) return res.status(403).json({ message: 'Admin access required' });
 
     ensureDir(SECTOR_PDF_DIR);

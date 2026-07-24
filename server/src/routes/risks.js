@@ -8,7 +8,7 @@ router.use(authenticate);
 
 router.get('/', apiLimiter, riskController.getRiskAssessments);
 router.get('/summary', apiLimiter, riskController.getRiskSummary);
-router.post('/assess', authorize('admin', 'manager'), apiLimiter, riskController.assessRisk);
-router.patch('/:id/status', authorize('admin'), apiLimiter, riskController.updateRiskStatus);
+router.post('/assess', authorize('admin', 'manager', 'developer'), apiLimiter, riskController.assessRisk);
+router.patch('/:id/status', authorize('admin', 'developer'), apiLimiter, riskController.updateRiskStatus);
 
 module.exports = router;

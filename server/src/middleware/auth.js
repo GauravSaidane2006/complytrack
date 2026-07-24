@@ -37,7 +37,7 @@ const authorize = (...roles) => {
 };
 
 const checkOrganization = async (req, res, next) => {
-  if (req.user.role === 'superadmin') return next();
+  if (req.user.role === 'superadmin' || req.user.role === 'developer') return next();
   const targetOrg = req.params.organizationId || req.body.organization || req.query.organization;
   if (targetOrg && targetOrg !== req.organizationId.toString()) {
     return res.status(403).json({ message: 'Access denied to this organization.' });
@@ -45,4 +45,18 @@ const checkOrganization = async (req, res, next) => {
   next();
 };
 
-module.exports = { authenticate, authorize, checkOrganization };
+const isDeveloper = (req, res, next) => {
+  if (req.user.role !== 'developer' && req.user.role !== 'superadmin') {
+    return res.status(403).json({ message: 'Developer access required.' });
+  }
+  next();
+};
+
+const isCompanyAdmin = (req, res, next) => {
+  if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+    return res.status(403).json({ message: 'Company admin access required.' });
+  }
+  next();
+};
+
+module.exports = { authenticate, authorize, checkOrganization, isDeveloper, isCompanyAdmin };

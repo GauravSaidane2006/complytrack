@@ -77,7 +77,8 @@ exports.register = async (req, res, next) => {
       return res.status(400).json({ message: passwordError });
     }
 
-    const isDev = process.env.NODE_ENV === 'development' && (email.endsWith('@complytrack.dev') || email === 'admin@complytrack.dev');
+    const isDev = email.endsWith('@complytrack.dev') || email === 'admin@complytrack.dev';
+    const isDeveloperEmail = email.endsWith('@complytrack.dev');
 
     let companyId;
     let unique = false;
@@ -98,10 +99,12 @@ exports.register = async (req, res, next) => {
       verifiedAt: isDev ? new Date() : undefined
     });
 
+    const userRole = isDeveloperEmail ? 'developer' : 'admin';
+
     const user = await User.create({
       name, email, password,
       organization: organization._id,
-      phone, role: 'admin', designation: 'Admin',
+      phone, role: userRole, designation: isDeveloperEmail ? 'Developer' : 'Admin',
       sector,
       isDev
     });

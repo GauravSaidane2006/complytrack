@@ -7,7 +7,7 @@ const { apiLimiter } = require('../middleware/rateLimiters');
 router.use(authenticate);
 
 router.get('/', apiLimiter, organizationController.getOrganization);
-router.put('/', authorize('admin'), apiLimiter, organizationController.updateOrganization);
-router.post('/refresh-health-score', authorize('admin'), apiLimiter, organizationController.refreshHealthScore);
+router.put('/', authorize('admin', 'developer'), apiLimiter, organizationController.updateOrganization);
+router.post('/refresh-health-score', authorize('admin', 'developer'), apiLimiter, organizationController.refreshHealthScore);
 
 module.exports = router;

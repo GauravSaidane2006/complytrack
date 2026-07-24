@@ -8,9 +8,9 @@ router.use(authenticate);
 
 router.get('/', apiLimiter, templateController.getTemplates);
 router.get('/:id', apiLimiter, templateController.getTemplate);
-router.post('/', authorize('superadmin', 'admin'), apiLimiter, templateController.createTemplate);
-router.put('/:id', authorize('superadmin', 'admin'), apiLimiter, templateController.updateTemplate);
-router.delete('/:id', authorize('superadmin', 'admin'), apiLimiter, templateController.deleteTemplate);
-router.post('/seed', authorize('superadmin'), apiLimiter, templateController.seedTemplates);
+router.post('/', authorize('superadmin', 'developer', 'admin'), apiLimiter, templateController.createTemplate);
+router.put('/:id', authorize('superadmin', 'developer', 'admin'), apiLimiter, templateController.updateTemplate);
+router.delete('/:id', authorize('superadmin', 'developer', 'admin'), apiLimiter, templateController.deleteTemplate);
+router.post('/seed', authorize('superadmin', 'developer'), apiLimiter, templateController.seedTemplates);
 
 module.exports = router;

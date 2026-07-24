@@ -4,7 +4,8 @@ const Report = require('../models/Report');
 
 exports.getDashboardSummary = async (req, res, next) => {
   try {
-    const orgId = req.organizationId;
+    const isDevUser = req.user.role === 'developer' || req.user.role === 'superadmin';
+    const orgFilter = isDevUser ? {} : { organization: req.organizationId };
     const now = new Date();
 
     const [
@@ -16,7 +17,7 @@ exports.getDashboardSummary = async (req, res, next) => {
       lastReport
     ] = await Promise.all([
       Compliance.aggregate([
-        { $match: { organization: orgId } },
+        { $match: orgFilter },
         {
           $group: {
             _id: null,
@@ -32,20 +33,20 @@ exports.getDashboardSummary = async (req, res, next) => {
         }
       ]),
       Compliance.countDocuments({
-        organization: orgId,
+        ...orgFilter,
         dueDate: { $lt: now },
         status: { $nin: ['completed', 'waived'] }
       }),
       Compliance.find({
-        organization: orgId,
+        ...orgFilter,
         dueDate: { $gte: now, $lte: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000) },
         status: { $nin: ['completed', 'waived'] }
       }).populate('assignedTo', 'name').sort('dueDate').limit(5),
-      Alert.countDocuments({ organization: orgId, isRead: false }),
-      Compliance.find({ organization: orgId })
+      Alert.countDocuments(isDevUser ? { isRead: false } : { organization: req.organizationId, isRead: false }),
+      Compliance.find(orgFilter)
         .sort('-updatedAt').limit(5)
         .select('title status updatedAt priority'),
-      Report.findOne({ organization: orgId }).sort('-createdAt')
+      isDevUser ? Report.findOne().sort('-createdAt') : Report.findOne({ organization: req.organizationId }).sort('-createdAt')
     ]);
 
     const stats = complianceStats[0] || {
@@ -72,9 +73,10 @@ exports.getDashboardSummary = async (req, res, next) => {
 
 exports.getComplianceHealth = async (req, res, next) => {
   try {
-    const orgId = req.organizationId;
+    const isDevUser = req.user.role === 'developer' || req.user.role === 'superadmin';
+    const orgFilter = isDevUser ? {} : { organization: req.organizationId };
     const monthlyData = await Compliance.aggregate([
-      { $match: { organization: orgId } },
+      { $match: orgFilter },
       {
         $group: {
           _id: {
@@ -97,7 +99,7 @@ exports.getComplianceHealth = async (req, res, next) => {
     }));
 
     const lawBreakdown = await Compliance.aggregate([
-      { $match: { organization: orgId } },
+      { $match: orgFilter },
       {
         $group: {
           _id: '$law',
@@ -117,9 +119,11 @@ exports.getComplianceHealth = async (req, res, next) => {
 
 exports.getUpcomingDeadlines = async (req, res, next) => {
   try {
+    const isDevUser = req.user.role === 'developer' || req.user.role === 'superadmin';
+    const orgFilter = isDevUser ? {} : { organization: req.organizationId };
     const now = new Date();
     const deadlines = await Compliance.find({
-      organization: req.organizationId,
+      ...orgFilter,
       dueDate: { $gte: now },
       status: { $nin: ['completed', 'waived'] }
     }).populate('assignedTo', 'name email')

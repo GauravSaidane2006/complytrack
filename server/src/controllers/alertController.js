@@ -3,11 +3,13 @@ const Compliance = require('../models/Compliance');
 
 exports.getAlerts = async (req, res, next) => {
   try {
-    const filter = { organization: req.organizationId };
+    const isDevUser = req.user.role === 'developer' || req.user.role === 'superadmin';
+    const filter = isDevUser ? {} : { organization: req.organizationId };
     if (req.query.type) filter.type = req.query.type;
     if (req.query.isRead !== undefined) filter.isRead = req.query.isRead === 'true';
+    if (req.query.organization && isDevUser) filter.organization = req.query.organization;
 
-    if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+    if (!isDevUser && req.user.role !== 'admin' && req.user.role !== 'superadmin') {
       filter.$or = [{ user: req.user._id }, { user: { $exists: false } }];
     }
 
@@ -31,8 +33,9 @@ exports.getAlerts = async (req, res, next) => {
 
 exports.getUnreadCount = async (req, res, next) => {
   try {
-    const filter = { organization: req.organizationId, isRead: false };
-    if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+    const isDevUser = req.user.role === 'developer' || req.user.role === 'superadmin';
+    const filter = isDevUser ? { isRead: false } : { organization: req.organizationId, isRead: false };
+    if (!isDevUser && req.user.role !== 'admin' && req.user.role !== 'superadmin') {
       filter.$or = [{ user: req.user._id }, { user: { $exists: false } }];
     }
     const count = await Alert.countDocuments(filter);
@@ -44,8 +47,10 @@ exports.getUnreadCount = async (req, res, next) => {
 
 exports.markAsRead = async (req, res, next) => {
   try {
+    const isDevUser = req.user.role === 'developer' || req.user.role === 'superadmin';
+    const filter = isDevUser ? { _id: req.params.id } : { _id: req.params.id, organization: req.organizationId };
     const alert = await Alert.findOneAndUpdate(
-      { _id: req.params.id, organization: req.organizationId },
+      filter,
       { isRead: true, readAt: new Date() },
       { new: true }
     );
@@ -58,8 +63,9 @@ exports.markAsRead = async (req, res, next) => {
 
 exports.markAllAsRead = async (req, res, next) => {
   try {
-    const filter = { organization: req.organizationId, isRead: false };
-    if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+    const isDevUser = req.user.role === 'developer' || req.user.role === 'superadmin';
+    const filter = isDevUser ? { isRead: false } : { organization: req.organizationId, isRead: false };
+    if (!isDevUser && req.user.role !== 'admin' && req.user.role !== 'superadmin') {
       filter.$or = [{ user: req.user._id }, { user: { $exists: false } }];
     }
     await Alert.updateMany(filter, { isRead: true, readAt: new Date() });
@@ -85,11 +91,13 @@ exports.createAlert = async (req, res, next) => {
 
 exports.generateDeadlineAlerts = async (req, res, next) => {
   try {
+    const isDevUser = req.user.role === 'developer' || req.user.role === 'superadmin';
+    const orgFilter = isDevUser ? {} : { organization: req.organizationId };
     const now = new Date();
     const sevenDaysLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
     const upcomingItems = await Compliance.find({
-      organization: req.organizationId,
+      ...orgFilter,
       dueDate: { $gte: now, $lte: sevenDaysLater },
       status: { $nin: ['completed', 'waived'] }
     });
@@ -97,7 +105,7 @@ exports.generateDeadlineAlerts = async (req, res, next) => {
     const alerts = [];
     for (const item of upcomingItems) {
       const existingAlert = await Alert.findOne({
-        organization: req.organizationId,
+        organization: item.organization,
         complianceItem: item._id,
         type: 'deadline',
         createdAt: { $gte: new Date(now.getTime() - 24 * 60 * 60 * 1000) }
@@ -113,7 +121,7 @@ exports.generateDeadlineAlerts = async (req, res, next) => {
         : `${item.title} is due in ${daysUntilDue} day(s) on ${item.dueDate.toLocaleDateString()}.`;
 
       const alert = await Alert.create({
-        organization: req.organizationId,
+        organization: item.organization,
         type: daysUntilDue <= 0 ? 'deadline' : 'reminder',
         title,
         message,

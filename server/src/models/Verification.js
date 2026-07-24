@@ -8,7 +8,18 @@ const verificationSchema = new mongoose.Schema({
   },
   documentType: {
     type: String,
-    enum: ['company_registration', 'gst_certificate', 'pan_card', 'factory_license', 'pollution_consent', 'fssai_license', 'apmc_license', 'shop_establishment', 'electricity_bill', 'other'],
+    enum: [
+      'company_registration', 'gst_certificate', 'pan_card', 'factory_license', 'pollution_consent',
+      'fssai_license', 'apmc_license', 'shop_establishment', 'electricity_bill', 'other',
+      'dpdp_registration', 'it_act_compliance', 'stpi_registration', 'dot_registration',
+      'rbi_registration', 'sebi_registration', 'rbi_banking_license', 'irdai_registration',
+      'clinical_registration', 'nabh_accreditation', 'ugc_recognition', 'fssai_central_license',
+      'haccp_certification', 'peso_license', 'eia_clearance', 'arai_type_approval', 'iatf_certification',
+      'drug_manufacturing_license', 'gmp_certificate', 'bis_crs_registration', 'ewaste_authorization',
+      'drug_license_retail', 'gdp_certificate', 'it_intermediary_compliance', 'consumer_protection_ecom',
+      'iec_code', 'customs_house_license', 'peso_dealer_license', 'hallmarking_license',
+      'insecticide_license', 'fire_safety_noc', 'rera_registration', 'transport_permit'
+    ],
     required: true
   },
   fileUrl: { type: String, required: true },
