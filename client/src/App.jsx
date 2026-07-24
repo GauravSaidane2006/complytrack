@@ -26,6 +26,7 @@ import CompanyReport from './pages/CompanyReport'
 import Notices from './pages/Notices'
 import Questionnaire from './pages/Questionnaire'
 import SectorPdfs from './pages/SectorPdfs'
+import ContactSupport from './pages/ContactSupport'
 
 function ProtectedRoute({ children, allowedRoles }) {
   const { isAuthenticated, user } = useSelector((state) => state.auth)
@@ -78,6 +79,11 @@ export default function App() {
       <Route path="/register/help" element={
         <ProtectedRoute>
           <DocumentHelp />
+        </ProtectedRoute>
+      } />
+      <Route path="/contact-support" element={
+        <ProtectedRoute>
+          <ContactSupport />
         </ProtectedRoute>
       } />
       <Route path="/compliance-setup" element={

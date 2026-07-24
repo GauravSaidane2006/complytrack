@@ -360,7 +360,7 @@ export default function RegistrationFlow() {
                       value={form.phone}
                       onChange={(e) => handleChange('phone', e.target.value)}
                       className="w-full px-4 py-3 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
-                      placeholder="+91 98765 43210"
+                      placeholder="+91 74994 7550"
                     />
                   </div>
                   <div>
