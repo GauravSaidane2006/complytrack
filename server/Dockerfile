@@ -1,27 +1,16 @@
-FROM node:20-alpine AS base
-
-RUN apk add --no-cache dumb-init
+FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+# Install production dependencies first (better layer caching)
+COPY package.json package-lock.json* ./
+RUN npm ci --omit=dev
 
-RUN npm ci --omit=dev && npm cache clean --force
+# Copy application source
+COPY . .
 
-RUN addgroup -g 1001 -S complytrack && \
-    adduser -S complytrack -u 1001 -G complytrack
+# Express server port
+EXPOSE 5000
 
-COPY src ./src
-
-RUN mkdir -p uploads reports sector-pdfs notices && \
-    chown -R complytrack:complytrack /app
-
-USER complytrack
-
-EXPOSE 5173
-
-HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:5173/api/health || exit 1
-
-ENTRYPOINT ["dumb-init", "--"]
-CMD ["node", "src/app.js"]
+# Start the app (src/app.js is your entry point)
+CMD ["npm", "start"]
