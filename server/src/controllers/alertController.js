@@ -1,5 +1,8 @@
 const Alert = require('../models/Alert');
 const Compliance = require('../models/Compliance');
+const User = require('../models/User');
+const { sendDeadlineAlertEmail } = require('../utils/emailService');
+const { emitToOrg } = require('../utils/socketHelper');
 
 exports.getAlerts = async (req, res, next) => {
   try {
@@ -83,7 +86,39 @@ exports.createAlert = async (req, res, next) => {
       if (req.body[field] !== undefined) alertData[field] = req.body[field];
     }
     const alert = await Alert.create(alertData);
+
+    emitToOrg(req.organizationId, 'alert:new', {
+      _id: alert._id,
+      title: alert.title,
+      message: alert.message,
+      type: alert.type,
+      priority: alert.priority,
+      createdAt: alert.createdAt
+    });
+
+    if (alertData.sentVia?.includes('email') && alertData.complianceItem) {
+      const item = await Compliance.findById(alertData.complianceItem);
+      if (item?.assignedTo?.length) {
+        for (const userId of item.assignedTo) {
+          const user = await User.findById(userId);
+          if (user) sendDeadlineAlertEmail(user, item).catch(() => {});
+        }
+      }
+    }
+
     res.status(201).json(alert);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteAlert = async (req, res, next) => {
+  try {
+    const isDevUser = req.user.role === 'developer' || req.user.role === 'superadmin';
+    const filter = isDevUser ? { _id: req.params.id } : { _id: req.params.id, organization: req.organizationId };
+    const alert = await Alert.findOneAndDelete(filter);
+    if (!alert) return res.status(404).json({ message: 'Alert not found.' });
+    res.json({ message: 'Alert deleted.' });
   } catch (error) {
     next(error);
   }
@@ -100,7 +135,7 @@ exports.generateDeadlineAlerts = async (req, res, next) => {
       ...orgFilter,
       dueDate: { $gte: now, $lte: sevenDaysLater },
       status: { $nin: ['completed', 'waived'] }
-    });
+    }).populate('assignedTo');
 
     const alerts = [];
     for (const item of upcomingItems) {
@@ -120,17 +155,42 @@ exports.generateDeadlineAlerts = async (req, res, next) => {
         ? `${item.title} was due on ${item.dueDate.toLocaleDateString()}. Immediate action required.`
         : `${item.title} is due in ${daysUntilDue} day(s) on ${item.dueDate.toLocaleDateString()}.`;
 
-      const alert = await Alert.create({
-        organization: item.organization,
-        type: daysUntilDue <= 0 ? 'deadline' : 'reminder',
-        title,
-        message,
-        complianceItem: item._id,
-        priority: daysUntilDue <= 0 ? 'high' : item.priority,
-        sentVia: ['in-app'],
-        scheduledFor: now
-      });
-      alerts.push(alert);
+      const users = item.assignedTo?.length ? item.assignedTo : [null];
+
+      for (const user of users) {
+        const alertData = {
+          organization: item.organization,
+          type: daysUntilDue <= 0 ? 'deadline' : 'reminder',
+          title,
+          message,
+          complianceItem: item._id,
+          priority: daysUntilDue <= 0 ? 'high' : item.priority,
+          sentVia: ['in-app', 'email'],
+          scheduledFor: now
+        };
+
+        if (user) {
+          alertData.user = user._id;
+        }
+
+        const alert = await Alert.create(alertData);
+        alerts.push(alert);
+
+        emitToOrg(item.organization, 'alert:new', {
+          _id: alert._id,
+          title: alert.title,
+          message: alert.message,
+          type: alert.type,
+          priority: alert.priority,
+          createdAt: alert.createdAt
+        });
+
+        if (user) {
+          sendDeadlineAlertEmail(user, item).catch(err => {
+            console.error('Failed to send deadline email:', err.message);
+          });
+        }
+      }
     }
 
     res.json({ message: `${alerts.length} alerts generated.`, alerts });

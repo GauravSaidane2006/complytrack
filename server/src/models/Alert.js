@@ -17,7 +17,8 @@ const alertSchema = new mongoose.Schema({
   sentVia: [{ type: String, enum: ['email', 'sms', 'in-app'] }],
   scheduledFor: Date,
   sentAt: Date,
-  expiresAt: Date
+  expiresAt: Date,
+  reminderDay: Number
 }, { timestamps: true });
 
 alertSchema.index({ organization: 1, user: 1, isRead: 1 });

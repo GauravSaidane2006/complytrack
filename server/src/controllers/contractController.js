@@ -1,5 +1,6 @@
 const Contract = require('../models/Contract');
 const { escapeRegex } = require('../utils/security');
+const { emitToOrg } = require('../utils/socketHelper');
 
 exports.getContracts = async (req, res, next) => {
   try {
@@ -52,11 +53,13 @@ exports.getContract = async (req, res, next) => {
 
 exports.createContract = async (req, res, next) => {
   try {
-    const contract = await Contract.create({
-      ...req.body,
-      organization: req.organizationId,
-      createdBy: req.user._id
-    });
+    const allowedFields = ['title', 'contractNumber', 'party', 'partyContact', 'type', 'description', 'value', 'currency', 'startDate', 'endDate', 'renewalDate', 'noticePeriod', 'status', 'documents', 'clauses', 'assignedTo'];
+    const contractData = { organization: req.organizationId, createdBy: req.user._id };
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) contractData[field] = req.body[field];
+    }
+    const contract = await Contract.create(contractData);
+    emitToOrg(req.organizationId, 'contract:created', { _id: contract._id, title: contract.title });
     res.status(201).json(contract);
   } catch (error) {
     next(error);
@@ -65,12 +68,18 @@ exports.createContract = async (req, res, next) => {
 
 exports.updateContract = async (req, res, next) => {
   try {
+    const allowedFields = ['title', 'contractNumber', 'party', 'partyContact', 'type', 'description', 'value', 'currency', 'startDate', 'endDate', 'renewalDate', 'noticePeriod', 'status', 'documents', 'clauses', 'assignedTo'];
+    const updates = {};
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) updates[field] = req.body[field];
+    }
     const contract = await Contract.findOneAndUpdate(
       { _id: req.params.id, organization: req.organizationId },
-      req.body,
+      updates,
       { new: true, runValidators: true }
     );
     if (!contract) return res.status(404).json({ message: 'Contract not found.' });
+    emitToOrg(req.organizationId, 'contract:updated', { _id: contract._id, title: contract.title });
     res.json(contract);
   } catch (error) {
     next(error);
@@ -84,6 +93,7 @@ exports.deleteContract = async (req, res, next) => {
       organization: req.organizationId
     });
     if (!contract) return res.status(404).json({ message: 'Contract not found.' });
+    emitToOrg(req.organizationId, 'contract:deleted', { _id: req.params.id });
     res.json({ message: 'Contract deleted.' });
   } catch (error) {
     next(error);

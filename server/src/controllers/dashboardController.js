@@ -8,6 +8,7 @@ exports.getDashboardSummary = async (req, res, next) => {
     const orgFilter = isDevUser ? {} : { organization: req.organizationId };
     const now = new Date();
 
+    const excludeCompletedOneTime = { $nor: [{ frequency: 'one-time', status: 'completed' }] };
     const [
       complianceStats,
       overdueCount,
@@ -17,7 +18,7 @@ exports.getDashboardSummary = async (req, res, next) => {
       lastReport
     ] = await Promise.all([
       Compliance.aggregate([
-        { $match: orgFilter },
+        { $match: { ...orgFilter, ...excludeCompletedOneTime } },
         {
           $group: {
             _id: null,
@@ -34,11 +35,13 @@ exports.getDashboardSummary = async (req, res, next) => {
       ]),
       Compliance.countDocuments({
         ...orgFilter,
+        ...excludeCompletedOneTime,
         dueDate: { $lt: now },
         status: { $nin: ['completed', 'waived'] }
       }),
       Compliance.find({
         ...orgFilter,
+        ...excludeCompletedOneTime,
         dueDate: { $gte: now, $lte: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000) },
         status: { $nin: ['completed', 'waived'] }
       }).populate('assignedTo', 'name').sort('dueDate').limit(5),
@@ -75,8 +78,9 @@ exports.getComplianceHealth = async (req, res, next) => {
   try {
     const isDevUser = req.user.role === 'developer' || req.user.role === 'superadmin';
     const orgFilter = isDevUser ? {} : { organization: req.organizationId };
+    const excludeCompletedOneTime = { $nor: [{ frequency: 'one-time', status: 'completed' }] };
     const monthlyData = await Compliance.aggregate([
-      { $match: orgFilter },
+      { $match: { ...orgFilter, ...excludeCompletedOneTime } },
       {
         $group: {
           _id: {
@@ -99,7 +103,7 @@ exports.getComplianceHealth = async (req, res, next) => {
     }));
 
     const lawBreakdown = await Compliance.aggregate([
-      { $match: orgFilter },
+      { $match: { ...orgFilter, ...excludeCompletedOneTime } },
       {
         $group: {
           _id: '$law',

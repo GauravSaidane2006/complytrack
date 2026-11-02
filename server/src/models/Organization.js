@@ -50,9 +50,16 @@ const organizationSchema = new mongoose.Schema({
   },
   verifiedAt: Date,
   subscription: {
-    plan: { type: String, enum: ['free', 'basic', 'pro', 'enterprise'], default: 'free' },
+    plan: { type: String, enum: ['free', 'trial', 'basic', 'pro', 'enterprise'], default: 'free' },
     startDate: Date,
-    endDate: Date
+    endDate: Date,
+    trialStartedAt: Date,
+    trialExpiredHandled: { type: Boolean, default: false }
+  },
+  emailFrequency: {
+    type: String,
+    enum: ['immediate', 'daily_digest', 'weekly'],
+    default: 'immediate'
   },
   selectedCompliances: [{
     complianceId: { type: String, required: true },
@@ -80,5 +87,7 @@ const organizationSchema = new mongoose.Schema({
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   isActive: { type: Boolean, default: true }
 }, { timestamps: true });
+
+organizationSchema.index({ 'subscription.plan': 1, 'subscription.endDate': 1 });
 
 module.exports = mongoose.model('Organization', organizationSchema);

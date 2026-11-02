@@ -1,0 +1,127 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: complytrack-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-complytrack_secure_2024}
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - complytrack-network
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: complytrack-server
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    env_file:
+      - ./server/.env.docker
+    environment:
+      NODE_ENV: production
+      MAIN_SERVER_URL: http://main-server:5100
+      COMPLYTRACK_API_KEY: ${COMPLYTRACK_API_KEY:-}
+    networks:
+      - complytrack-network
+    volumes:
+      - uploads:/app/uploads
+      - reports:/app/reports
+      - notices:/app/notices
+      - sector_pdfs:/app/sector-pdfs
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+
+  main-server:
+    build:
+      context: ../main-server
+      dockerfile: Dockerfile
+    container_name: complytrack-main-server
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 5100
+      MONGODB_URI: mongodb://admin:${MONGO_ROOT_PASSWORD:-complytrack_secure_2024}@mongo:27017/complytrack_main?authSource=admin
+      JWT_SECRET: ${MAIN_SERVER_JWT_SECRET:-complytrack_main_secret_2024}
+      ADMIN_EMAIL: ${MAIN_ADMIN_EMAIL:-admin@complytrack.io}
+      ADMIN_PASSWORD: ${MAIN_ADMIN_PASSWORD:-Admin@123456}
+      CLIENT_URL: http://localhost:80
+    ports:
+      - "5100:5100"
+    networks:
+      - complytrack-network
+    volumes:
+      - main_data:/app/data
+      - main_updates:/app/updates
+    security_opt:
+      - no-new-privileges:true
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: complytrack-mongo-express
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_ROOT_PASSWORD:-complytrack_secure_2024}
+      ME_CONFIG_MONGODB_URL: mongodb://admin:${MONGO_ROOT_PASSWORD:-complytrack_secure_2024}@mongo:27017
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASSWORD:-complytrack_express_2024}
+    networks:
+      - complytrack-network
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: complytrack-client
+    restart: unless-stopped
+    depends_on:
+      server:
+        condition: service_healthy
+    ports:
+      - "80:80"
+    networks:
+      - complytrack-network
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+      - /var/run
+
+volumes:
+  mongo_data:
+  uploads:
+  reports:
+  notices:
+  sector_pdfs:
+  main_data:
+  main_updates:
+
+networks:
+  complytrack-network:
+    driver: bridge

@@ -4,6 +4,7 @@ const { generatePDF } = require('../utils/pdfGenerator');
 const { generateExcel } = require('../utils/excelGenerator');
 const path = require('path');
 const fs = require('fs');
+const { emitToOrg } = require('../utils/socketHelper');
 
 exports.getReports = async (req, res, next) => {
   try {
@@ -103,6 +104,7 @@ exports.generateReport = async (req, res, next) => {
     }
 
     await report.save();
+    emitToOrg(orgId, 'report:generated', { _id: report._id, type: report.type, format: report.format });
     res.status(201).json(report);
   } catch (error) {
     next(error);
@@ -145,6 +147,7 @@ exports.deleteReport = async (req, res, next) => {
       if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
     }
 
+    emitToOrg(req.organizationId, 'report:deleted', { _id: req.params.id });
     res.json({ message: 'Report deleted.' });
   } catch (error) {
     next(error);

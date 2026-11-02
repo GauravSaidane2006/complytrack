@@ -55,7 +55,13 @@ const complianceSchema = new mongoose.Schema({
   completedAt: Date,
   completedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   isRecurring: { type: Boolean, default: false },
-  parentCompliance: { type: mongoose.Schema.Types.ObjectId, ref: 'Compliance' }
+  parentCompliance: { type: mongoose.Schema.Types.ObjectId, ref: 'Compliance' },
+  proofRequired: { type: Boolean, default: false },
+  proofUploaded: { type: Boolean, default: false },
+  reminderSettings: {
+    daysBefore: { type: [Number], default: [7] },
+    enabled: { type: Boolean, default: true }
+  }
 }, { timestamps: true });
 
 complianceSchema.index({ organization: 1, status: 1 });

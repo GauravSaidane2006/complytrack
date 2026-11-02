@@ -1,20 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { setCredentials, setAccessToken, logout } from '../../store/slices/authSlice'
+import { setCredentials, logout } from '../../store/slices/authSlice'
 import LoadingSpinner from './LoadingSpinner'
 
 export default function AuthBootstrap({ children }) {
   const dispatch = useDispatch()
-  const { user, accessToken } = useSelector((state) => state.auth)
+  const { accessToken } = useSelector((state) => state.auth)
   const [checking, setChecking] = useState(true)
 
   useEffect(() => {
-    const storedUser = sessionStorage.getItem('user')
-    if (!storedUser) {
-      setChecking(false)
-      return
-    }
-
     if (accessToken) {
       setChecking(false)
       return
@@ -30,8 +24,9 @@ export default function AuthBootstrap({ children }) {
         if (res.ok) {
           const data = await res.json()
           if (data.accessToken) {
-            const parsedUser = JSON.parse(storedUser)
-            dispatch(setCredentials({ ...data, user: data.user || parsedUser }))
+            dispatch(setCredentials(data))
+          } else {
+            dispatch(logout())
           }
         } else {
           dispatch(logout())
@@ -48,10 +43,10 @@ export default function AuthBootstrap({ children }) {
 
   if (checking) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-stone-50 via-orange-50/30 to-stone-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-primary-50/30 to-slate-50 flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-sm text-stone-500">Restoring session...</p>
+          <p className="mt-4 text-sm text-slate-500">Restoring session...</p>
         </div>
       </div>
     )

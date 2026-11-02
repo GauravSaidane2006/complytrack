@@ -12,5 +12,6 @@ router.get('/organizations', apiLimiter, developerController.getAllOrganizations
 router.get('/organizations/:id', apiLimiter, developerController.getOrganizationDetails);
 router.get('/compliance', apiLimiter, developerController.getAllComplianceItems);
 router.get('/alerts', apiLimiter, developerController.getAllAlerts);
+router.get('/pending-verifications', apiLimiter, developerController.getAllPendingVerifications);
 
 module.exports = router;

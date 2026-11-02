@@ -5,9 +5,9 @@ const { getMandatoryComplianceIds } = require('../data/questionnaireData');
 
 const PAGE_W = 595.28;
 const PAGE_H = 841.89;
-const MARGIN = 50;
+const MARGIN = 40;
 const CONTENT_W = PAGE_W - MARGIN * 2;
-const CONTENT_X = MARGIN;
+const BOTTOM_MARGIN = 50;
 
 const SECTOR_LABELS = {
   service: 'Service Sector',
@@ -37,8 +37,15 @@ const CATEGORY_COLORS = {
   other: { bg: '#F3F4F6', text: '#374151' }
 };
 
+const TEXT_DARK = '#111827';
+const TEXT_MED = '#374151';
+const TEXT_LIGHT = '#6B7280';
+const TEXT_MUTED = '#9CA3AF';
+const BORDER = '#E5E7EB';
+const LIGHT_BG = '#F9FAFB';
+
 function ensureSpace(doc, needed) {
-  if (doc.y + needed > PAGE_H - 60) {
+  if (doc.y + needed > PAGE_H - BOTTOM_MARGIN) {
     doc.addPage();
     doc.y = MARGIN;
     return true;
@@ -46,80 +53,66 @@ function ensureSpace(doc, needed) {
   return false;
 }
 
-function drawPageNumber(doc, pageNum) {
-  doc.fontSize(8).font('Helvetica').fillColor('#9CA3AF');
-  doc.text(`Page ${pageNum}`, CONTENT_X, PAGE_H - 35, { width: CONTENT_W, align: 'center' });
+function drawPageNumber(doc, pageNum, totalPages) {
+  doc.fontSize(7).font('Helvetica').fillColor(TEXT_MUTED);
+  doc.text(`Page ${pageNum} of ${totalPages}`, MARGIN, PAGE_H - 18, { width: CONTENT_W, align: 'right' });
 }
 
-function drawHeader(doc, sector, industry, color, isPersonalized) {
+function drawHeader(doc, sector, industry, isPersonalized) {
   const colors = SECTOR_COLORS[sector] || SECTOR_COLORS.service;
-
-  doc.rect(0, 0, PAGE_W, 100).fill(colors.primary);
-
-  doc.fontSize(10).font('Helvetica').fillColor('rgba(255,255,255,0.7)')
-    .text('COMPLYTRACK INDIA', MARGIN, 15, { width: CONTENT_W, align: 'left' });
-
-  doc.fontSize(22).font('Helvetica-Bold').fillColor('#FFFFFF')
-    .text(isPersonalized ? 'PERSONALIZED COMPLIANCE GUIDE' : 'COMPLIANCE REFERENCE DOCUMENT', MARGIN, 32, { width: CONTENT_W, align: 'left' });
-
+  doc.rect(0, 0, PAGE_W, 80).fill(colors.primary);
+  doc.fontSize(9).font('Helvetica').fillColor('rgba(255,255,255,0.6)')
+    .text('COMPLYTRACK INDIA', MARGIN, 10, { width: CONTENT_W, align: 'left' });
+  doc.fontSize(17).font('Helvetica-Bold').fillColor('#FFFFFF')
+    .text(isPersonalized ? 'PERSONALIZED COMPLIANCE GUIDE' : 'COMPLIANCE REFERENCE DOCUMENT', MARGIN, 26, { width: CONTENT_W, align: 'left' });
   const industryLabel = industry === 'all' ? 'All Industries' : industry.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-  const subtitle = `${SECTOR_LABELS[sector] || sector} - ${industryLabel}`;
-  doc.fontSize(11).font('Helvetica').fillColor('rgba(255,255,255,0.9)')
-    .text(subtitle, MARGIN, 62, { width: CONTENT_W, align: 'left' });
-
-  doc.rect(0, 100, PAGE_W, 3).fill(colors.dark);
-  doc.y = 115;
+  doc.fontSize(9).font('Helvetica').fillColor('rgba(255,255,255,0.85)')
+    .text(`${SECTOR_LABELS[sector] || sector} — ${industryLabel}`, MARGIN, 50, { width: CONTENT_W, align: 'left' });
+  doc.rect(0, 80, PAGE_W, 2).fill(colors.dark);
+  doc.y = 90;
 }
 
 function drawInfoBox(doc, items) {
-  const boxY = doc.y;
-  const boxH = items.length * 16 + 16;
-
-  ensureSpace(doc, boxH + 10);
-
-  doc.rect(MARGIN, doc.y, CONTENT_W, boxH).fill('#F9FAFB');
-  doc.rect(MARGIN, doc.y, 3, boxH).fill('#D1D5DB');
-
-  let y = doc.y + 10;
+  const lineH = 14;
+  const boxH = items.length * lineH + 12;
+  ensureSpace(doc, boxH + 6);
+  doc.rect(MARGIN, doc.y, CONTENT_W, boxH).fill(LIGHT_BG);
+  doc.rect(MARGIN, doc.y, 3, boxH).fill(BORDER);
+  let y = doc.y + 8;
   items.forEach(({ label, value }) => {
-    doc.fontSize(9).font('Helvetica-Bold').fillColor('#374151').text(`${label}: `, MARGIN + 12, y, { continued: true, width: 120 });
-    doc.font('Helvetica').fillColor('#6B7280').text(value, { width: CONTENT_W - 140 });
-    y += 16;
+    doc.fontSize(8).font('Helvetica-Bold').fillColor(TEXT_MED).text(`${label}: `, MARGIN + 10, y, { continued: true, width: 100 });
+    doc.font('Helvetica').fillColor(TEXT_LIGHT).text(value, { width: CONTENT_W - 120 });
+    y += lineH;
   });
-
-  doc.y = boxY + boxH + 8;
+  doc.y += boxH + 6;
 }
 
-function drawSectionHeader(doc, title, color, number) {
-  ensureSpace(doc, 50);
-
+function drawSectionHeader(doc, title, color) {
+  ensureSpace(doc, 36);
   const y = doc.y;
-  doc.roundedRect(MARGIN, y, CONTENT_W, 30, 4).fill(color);
-
-  doc.fontSize(12).font('Helvetica-Bold').fillColor('#FFFFFF')
-    .text(title, MARGIN + 12, y + 8, { width: CONTENT_W - 24 });
-
-  doc.y = y + 38;
+  doc.roundedRect(MARGIN, y, CONTENT_W, 24, 3).fill(color);
+  doc.fontSize(10).font('Helvetica-Bold').fillColor('#FFFFFF')
+    .text(title, MARGIN + 10, y + 7, { width: CONTENT_W - 20 });
+  doc.y = y + 30;
 }
 
 function drawComplianceCard(doc, item, index, showBadge, applicability) {
-  const neededHeight = 80;
-  if (doc.y + neededHeight > PAGE_H - 60) {
+  const neededHeight = 48;
+  if (doc.y + neededHeight > PAGE_H - BOTTOM_MARGIN) {
     doc.addPage();
     doc.y = MARGIN;
   }
 
   const cardY = doc.y;
   const colors = CATEGORY_COLORS[item.category] || CATEGORY_COLORS.other;
-  const priorityColor = PRIORITY_COLORS[item.priority] || PRIORITY_COLORS.medium;
 
-  doc.roundedRect(MARGIN, cardY, CONTENT_W, 1, 0).fill('#E5E7EB');
-  const startY = cardY + 8;
+  doc.roundedRect(MARGIN, cardY, CONTENT_W, 1, 0).fill(BORDER);
+  const startY = cardY + 6;
 
-  let titleX = MARGIN + 8;
-  const titleMaxW = showBadge ? CONTENT_W - 130 : CONTENT_W - 16;
+  let titleX = MARGIN + 6;
+  const titleMaxW = showBadge ? CONTENT_W - 120 : CONTENT_W - 12;
 
-  doc.fontSize(10).font('Helvetica-Bold').fillColor('#111827')
+  doc.fontSize(9).font('Helvetica-Bold').fillColor(TEXT_DARK)
     .text(`${index}. ${item.title}`, titleX, startY, { width: titleMaxW });
 
   if (showBadge && applicability) {
@@ -129,36 +122,35 @@ function drawComplianceCard(doc, item, index, showBadge, applicability) {
       not_applicable: { bg: '#9CA3AF', label: 'N/A' }
     };
     const badge = badgeConfig[applicability] || badgeConfig.recommended;
-    const badgeX = MARGIN + CONTENT_W - 108;
-    doc.roundedRect(badgeX, startY - 1, 100, 16, 3).fill(badge.bg);
-    doc.fontSize(7).font('Helvetica-Bold').fillColor('#FFFFFF')
-      .text(badge.label, badgeX + 2, startY + 3, { width: 96, align: 'center' });
+    const badgeX = MARGIN + CONTENT_W - 100;
+    doc.roundedRect(badgeX, startY - 1, 92, 14, 3).fill(badge.bg);
+    doc.fontSize(6.5).font('Helvetica-Bold').fillColor('#FFFFFF')
+      .text(badge.label, badgeX + 2, startY + 2.5, { width: 88, align: 'center' });
   }
 
-  let metaY = doc.y + 3;
-  if (metaY < startY + 18) metaY = startY + 18;
+  let metaY = Math.max(doc.y + 2, startY + 14);
 
   const metaParts = [];
   metaParts.push(item.law);
-  metaParts.push(CATEGORY_COLORS[item.category] ? (CATEGORY_COLORS[item.category].text === '#065F46' ? 'Audit' : item.category.charAt(0).toUpperCase() + item.category.slice(1)) : item.category);
+  metaParts.push(item.category ? (item.category.charAt(0).toUpperCase() + item.category.slice(1)) : '');
   metaParts.push(item.frequency.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()));
   metaParts.push((item.priority || 'medium').toUpperCase());
 
-  doc.fontSize(8).font('Helvetica').fillColor('#9CA3AF')
-    .text(metaParts.join('  •  '), MARGIN + 8, metaY, { width: CONTENT_W - 16 });
+  doc.fontSize(7.5).font('Helvetica').fillColor(TEXT_MUTED)
+    .text(metaParts.filter(Boolean).join('  •  '), MARGIN + 6, metaY, { width: CONTENT_W - 12 });
 
-  let descY = doc.y + 2;
+  let descY = doc.y + 1;
   if (item.description) {
-    doc.fontSize(8.5).font('Helvetica').fillColor('#4B5563')
-      .text(item.description, MARGIN + 8, descY, { width: CONTENT_W - 16, lineGap: 1 });
-    descY = doc.y + 2;
+    doc.fontSize(8).font('Helvetica').fillColor(TEXT_LIGHT)
+      .text(item.description, MARGIN + 6, descY, { width: CONTENT_W - 12, lineGap: 0.5, height: 18, ellipsis: true });
+    descY = doc.y + 1;
   }
 
   if (item.penalties && item.penalties.length > 0) {
     const penaltyY = descY;
-    doc.roundedRect(MARGIN + 8, penaltyY, CONTENT_W - 16, 14, 2).fill('#FEF2F2');
-    doc.fontSize(7.5).font('Helvetica-Bold').fillColor('#DC2626')
-      .text('PENALTIES:', MARGIN + 14, penaltyY + 3, { width: 60 });
+    doc.roundedRect(MARGIN + 6, penaltyY, CONTENT_W - 12, 12, 2).fill('#FEF2F2');
+    doc.fontSize(7).font('Helvetica-Bold').fillColor('#DC2626')
+      .text('PENALTIES:', MARGIN + 10, penaltyY + 2.5, { width: 52 });
 
     const penaltyTexts = item.penalties.map((p) => {
       let txt = p.description || '';
@@ -167,54 +159,54 @@ function drawComplianceCard(doc, item, index, showBadge, applicability) {
       return txt;
     }).join('; ');
 
-    doc.fontSize(7.5).font('Helvetica').fillColor('#991B1B')
-      .text(penaltyTexts, MARGIN + 72, penaltyY + 3, { width: CONTENT_W - 88 });
+    doc.fontSize(7).font('Helvetica').fillColor('#991B1B')
+      .text(penaltyTexts, MARGIN + 62, penaltyY + 2.5, { width: CONTENT_W - 74, height: 10, ellipsis: true });
 
-    doc.y = penaltyY + 18;
+    doc.y = penaltyY + 14;
   }
 
-  doc.y = doc.y + 6;
+  doc.y = doc.y + 4;
 }
 
 function drawPenaltyTable(doc, items) {
   drawSectionHeader(doc, 'PENALTY SUMMARY', '#DC2626');
 
-  const colWidths = [30, 150, 170, 145];
-  const colX = [MARGIN + 4, MARGIN + 38, MARGIN + 192, MARGIN + 366];
-  const rowH = 20;
+  const colWidths = [24, 160, 180, 120];
+  const colX = [];
+  let cx = MARGIN + 2;
+  colWidths.forEach((w) => { colX.push(cx); cx += w; });
+  const rowH = 16;
 
   function drawTableHeader(y) {
     doc.rect(MARGIN, y, CONTENT_W, rowH).fill('#1F2937');
-    doc.fontSize(8).font('Helvetica-Bold').fillColor('#FFFFFF');
-    doc.text('#', colX[0], y + 5, { width: colWidths[0] });
-    doc.text('COMPLIANCE ITEM', colX[1], y + 5, { width: colWidths[1] });
-    doc.text('PENALTY', colX[2], y + 5, { width: colWidths[2] });
-    doc.text('FINE', colX[3], y + 5, { width: colWidths[3] });
+    doc.fontSize(7).font('Helvetica-Bold').fillColor('#FFFFFF');
+    doc.text('#', colX[0], y + 4, { width: colWidths[0] });
+    doc.text('COMPLIANCE ITEM', colX[1], y + 4, { width: colWidths[1] });
+    doc.text('PENALTY', colX[2], y + 4, { width: colWidths[2] });
+    doc.text('FINE', colX[3], y + 4, { width: colWidths[3] });
     return y + rowH;
   }
 
   let y = drawTableHeader(doc.y);
-
   const itemsWithPenalties = items.filter((i) => i.penalties && i.penalties.length > 0);
 
   itemsWithPenalties.forEach((item, idx) => {
     const itemNum = items.indexOf(item) + 1;
 
     item.penalties.forEach((p, pi) => {
-      ensureSpace(doc, rowH + 4);
-
-      if (doc.y + rowH > PAGE_H - 60) {
+      ensureSpace(doc, rowH + 2);
+      if (doc.y + rowH > PAGE_H - BOTTOM_MARGIN) {
         doc.addPage();
         doc.y = MARGIN;
         y = drawTableHeader(doc.y);
       }
 
       if (idx % 2 === 0) {
-        doc.rect(MARGIN, doc.y, CONTENT_W, rowH).fill('#F9FAFB');
+        doc.rect(MARGIN, doc.y, CONTENT_W, rowH).fill(LIGHT_BG);
       }
 
-      const textY = doc.y + 4;
-      doc.fontSize(8).font('Helvetica').fillColor('#374151');
+      const textY = doc.y + 3;
+      doc.fontSize(7.5).font('Helvetica').fillColor(TEXT_MED);
 
       if (pi === 0) {
         doc.text(`${itemNum}`, colX[0], textY, { width: colWidths[0] });
@@ -224,8 +216,7 @@ function drawPenaltyTable(doc, items) {
       doc.text(p.description || '-', colX[2], textY, { width: colWidths[2] });
       doc.fillColor('#DC2626').text(p.fine || '-', colX[3], textY, { width: colWidths[3] });
 
-      doc.y = doc.y + 2;
-      doc.y = Math.max(doc.y, textY + 12);
+      doc.y = Math.max(doc.y + 2, textY + 10);
     });
   });
 }
@@ -242,42 +233,35 @@ function drawDueDateGuide(doc) {
     { freq: 'Event-Based', desc: 'As per event timeline', example: 'GST Revocation, Change in Details' }
   ];
 
-  const colW = [90, 180, 225];
-  const colX = [MARGIN + 8, MARGIN + 102, MARGIN + 288];
+  const colW = [80, 190, 215];
+  const colX = [];
+  let cx = MARGIN + 6;
+  colW.forEach((w) => { colX.push(cx); cx += w; });
 
-  doc.rect(MARGIN, doc.y, CONTENT_W, 18).fill('#065F46');
-  doc.fontSize(8).font('Helvetica-Bold').fillColor('#FFFFFF');
-  doc.text('FREQUENCY', colX[0], doc.y - 12, { width: colW[0] });
-  doc.text('DUE DATE', colX[1], doc.y - 12, { width: colW[1] });
-  doc.text('EXAMPLES', colX[2], doc.y - 12, { width: colW[2] });
-  doc.y += 6;
+  doc.rect(MARGIN, doc.y, CONTENT_W, 16).fill('#065F46');
+  doc.fontSize(7).font('Helvetica-Bold').fillColor('#FFFFFF');
+  doc.text('FREQUENCY', colX[0], doc.y + 4, { width: colW[0] });
+  doc.text('DUE DATE', colX[1], doc.y + 4, { width: colW[1] });
+  doc.text('EXAMPLES', colX[2], doc.y + 4, { width: colW[2] });
+  doc.y += 16;
 
   freqs.forEach((f, i) => {
     const rowY = doc.y;
-    if (i % 2 === 0) doc.rect(MARGIN, rowY, CONTENT_W, 22).fill('#ECFDF5');
-
-    doc.fontSize(8.5).font('Helvetica-Bold').fillColor('#065F46')
-      .text(f.freq, colX[0], rowY + 5, { width: colW[0] });
-    doc.font('Helvetica').fillColor('#374151')
-      .text(f.desc, colX[1], rowY + 5, { width: colW[1] });
-    doc.fillColor('#6B7280')
-      .text(f.example, colX[2], rowY + 5, { width: colW[2] });
-
-    doc.y = rowY + 22;
+    if (i % 2 === 0) doc.rect(MARGIN, rowY, CONTENT_W, 16).fill('#ECFDF5');
+    doc.fontSize(8).font('Helvetica-Bold').fillColor('#065F46')
+      .text(f.freq, colX[0], rowY + 3, { width: colW[0] });
+    doc.font('Helvetica').fillColor(TEXT_MED)
+      .text(f.desc, colX[1], rowY + 3, { width: colW[1] });
+    doc.fillColor(TEXT_LIGHT)
+      .text(f.example, colX[2], rowY + 3, { width: colW[2] });
+    doc.y = rowY + 16;
   });
 }
 
-function drawFooter(doc, totalPages) {
-  const footerY = PAGE_H - 30;
-  doc.fontSize(7).font('Helvetica').fillColor('#9CA3AF');
-  doc.text(
-    'This document is auto-generated by ComplyTrack India. Verify all compliance requirements with relevant authorities.',
-    MARGIN, footerY, { width: CONTENT_W, align: 'center' }
-  );
-  doc.text(
-    `Generated on ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })} at ${new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}`,
-    MARGIN, footerY + 10, { width: CONTENT_W, align: 'center' }
-  );
+function drawFooter(doc) {
+  doc.fontSize(7).font('Helvetica').fillColor(TEXT_MUTED);
+  doc.text('ComplyTrack India  |  Auto-generated reference document  |  Verify all requirements with relevant authorities',
+    MARGIN, PAGE_H - 28, { width: CONTENT_W, align: 'center' });
 }
 
 exports.generateFullReferencePDF = (sector, industry, filePath) => {
@@ -287,7 +271,7 @@ exports.generateFullReferencePDF = (sector, industry, filePath) => {
       const stream = fs.createWriteStream(filePath);
       doc.pipe(stream);
 
-      drawHeader(doc, sector, industry, null, false);
+      drawHeader(doc, sector, industry, false);
 
       const sectorLabel = SECTOR_LABELS[sector] || sector;
       const industryLabel = industry === 'all' ? 'All Industries' : industry.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
@@ -333,8 +317,8 @@ exports.generateFullReferencePDF = (sector, industry, filePath) => {
       const totalPages = doc.bufferedPageRange().count;
       for (let i = 0; i < totalPages; i++) {
         doc.switchToPage(i);
-        drawFooter(doc, totalPages);
-        drawPageNumber(doc, i + 1);
+        drawFooter(doc);
+        drawPageNumber(doc, i + 1, totalPages);
       }
 
       doc.end();
@@ -353,7 +337,7 @@ exports.generatePersonalizedPDF = (sector, industry, companyName, answers, fileP
       const stream = fs.createWriteStream(filePath);
       doc.pipe(stream);
 
-      drawHeader(doc, sector, industry, null, true);
+      drawHeader(doc, sector, industry, true);
 
       const sectorLabel = SECTOR_LABELS[sector] || sector;
       const industryLabel = industry === 'all' ? 'All Industries' : industry.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
@@ -403,9 +387,9 @@ exports.generatePersonalizedPDF = (sector, industry, companyName, answers, fileP
 
       drawSectionHeader(doc, `MANDATORY COMPLIANCE ITEMS (${mandatoryItems.length})`, '#DC2626');
       if (mandatoryItems.length === 0) {
-        doc.fontSize(9).font('Helvetica').fillColor('#6B7280')
-          .text('No mandatory items based on your questionnaire responses.', MARGIN + 8, doc.y, { width: CONTENT_W - 16 });
-        doc.y += 8;
+        doc.fontSize(8).font('Helvetica').fillColor(TEXT_LIGHT)
+          .text('No mandatory items based on your questionnaire responses.', MARGIN + 6, doc.y, { width: CONTENT_W - 12 });
+        doc.y += 6;
       } else {
         mandatoryItems.forEach((item, i) => {
           drawComplianceCard(doc, item, i + 1, true, 'mandatory');
@@ -414,9 +398,9 @@ exports.generatePersonalizedPDF = (sector, industry, companyName, answers, fileP
 
       drawSectionHeader(doc, `RECOMMENDED COMPLIANCE ITEMS (${recommendedItems.length})`, '#F59E0B');
       if (recommendedItems.length === 0) {
-        doc.fontSize(9).font('Helvetica').fillColor('#6B7280')
-          .text('No recommended items based on your questionnaire responses.', MARGIN + 8, doc.y, { width: CONTENT_W - 16 });
-        doc.y += 8;
+        doc.fontSize(8).font('Helvetica').fillColor(TEXT_LIGHT)
+          .text('No recommended items based on your questionnaire responses.', MARGIN + 6, doc.y, { width: CONTENT_W - 12 });
+        doc.y += 6;
       } else {
         recommendedItems.forEach((item, i) => {
           drawComplianceCard(doc, item, i + 1, true, 'recommended');
@@ -426,8 +410,8 @@ exports.generatePersonalizedPDF = (sector, industry, companyName, answers, fileP
       const totalPages = doc.bufferedPageRange().count;
       for (let i = 0; i < totalPages; i++) {
         doc.switchToPage(i);
-        drawFooter(doc, totalPages);
-        drawPageNumber(doc, i + 1);
+        drawFooter(doc);
+        drawPageNumber(doc, i + 1, totalPages);
       }
 
       doc.end();

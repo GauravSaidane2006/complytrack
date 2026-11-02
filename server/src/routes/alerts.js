@@ -10,6 +10,7 @@ router.get('/', apiLimiter, alertController.getAlerts);
 router.get('/unread-count', apiLimiter, alertController.getUnreadCount);
 router.patch('/:id/read', apiLimiter, alertController.markAsRead);
 router.patch('/mark-all-read', apiLimiter, alertController.markAllAsRead);
+router.delete('/:id', apiLimiter, alertController.deleteAlert);
 router.post('/', authorize('admin', 'developer'), apiLimiter, alertController.createAlert);
 router.post('/generate-deadline-alerts', authorize('admin', 'developer'), apiLimiter, alertController.generateDeadlineAlerts);
 

@@ -5,9 +5,12 @@ const Alert = require('../models/Alert');
 const Report = require('../models/Report');
 const Contract = require('../models/Contract');
 const RiskAssessment = require('../models/RiskAssessment');
+const Verification = require('../models/Verification');
+const { escapeRegex } = require('../utils/security');
 
 exports.getGlobalStats = async (req, res, next) => {
   try {
+    const excludeCompletedOneTime = { $nor: [{ frequency: 'one-time', status: 'completed' }] };
     const [
       totalOrganizations,
       totalUsers,
@@ -22,10 +25,10 @@ exports.getGlobalStats = async (req, res, next) => {
     ] = await Promise.all([
       Organization.countDocuments({ isActive: true }),
       User.countDocuments({ isActive: true }),
-      Compliance.countDocuments(),
-      Compliance.countDocuments({ status: { $in: ['pending', 'in-progress'] } }),
-      Compliance.countDocuments({ status: 'overdue' }),
-      Compliance.countDocuments({ status: 'completed' }),
+      Compliance.countDocuments(excludeCompletedOneTime),
+      Compliance.countDocuments({ ...excludeCompletedOneTime, status: { $in: ['pending', 'in-progress'] } }),
+      Compliance.countDocuments({ ...excludeCompletedOneTime, status: 'overdue' }),
+      Compliance.countDocuments({ ...excludeCompletedOneTime, status: 'completed' }),
       Alert.countDocuments(),
       Alert.countDocuments({ isRead: false }),
       Contract.countDocuments(),
@@ -74,10 +77,11 @@ exports.getAllOrganizations = async (req, res, next) => {
 
     const filter = { isActive: true };
     if (req.query.search) {
+      const sanitizedSearch = escapeRegex(req.query.search);
       filter.$or = [
-        { name: { $regex: req.query.search, $options: 'i' } },
-        { companyId: { $regex: req.query.search, $options: 'i' } },
-        { gstin: { $regex: req.query.search, $options: 'i' } }
+        { name: { $regex: sanitizedSearch, $options: 'i' } },
+        { companyId: { $regex: sanitizedSearch, $options: 'i' } },
+        { gstin: { $regex: sanitizedSearch, $options: 'i' } }
       ];
     }
     if (req.query.sector) filter.sector = req.query.sector;
@@ -135,8 +139,9 @@ exports.getOrganizationDetails = async (req, res, next) => {
       Contract.find({ organization: organization._id }).sort('-createdAt').limit(10)
     ]);
 
+    const excludeCompletedOneTime = { $nor: [{ frequency: 'one-time', status: 'completed' }] };
     const complianceStats = await Compliance.aggregate([
-      { $match: { organization: organization._id } },
+      { $match: { organization: organization._id, ...excludeCompletedOneTime } },
       {
         $group: {
           _id: null,
@@ -174,9 +179,10 @@ exports.getAllComplianceItems = async (req, res, next) => {
     if (req.query.law) filter.law = { $in: req.query.law.split(',') };
     if (req.query.priority) filter.priority = { $in: req.query.priority.split(',') };
     if (req.query.search) {
+      const sanitizedSearch = escapeRegex(req.query.search);
       filter.$or = [
-        { title: { $regex: req.query.search, $options: 'i' } },
-        { regulation: { $regex: req.query.search, $options: 'i' } }
+        { title: { $regex: sanitizedSearch, $options: 'i' } },
+        { regulation: { $regex: sanitizedSearch, $options: 'i' } }
       ];
     }
 
@@ -222,6 +228,38 @@ exports.getAllAlerts = async (req, res, next) => {
 
     res.json({
       alerts,
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getAllPendingVerifications = async (req, res, next) => {
+  try {
+    const filter = {};
+    if (req.query.status) {
+      filter.status = req.query.status;
+    } else {
+      filter.status = 'pending';
+    }
+    if (req.query.organization) filter.organization = req.query.organization;
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 50;
+    const skip = (page - 1) * limit;
+
+    const [verifications, total] = await Promise.all([
+      Verification.find(filter)
+        .populate('organization', 'name companyId gstin sector industry verificationStatus')
+        .sort('-createdAt')
+        .skip(skip)
+        .limit(limit),
+      Verification.countDocuments(filter)
+    ]);
+
+    res.json({
+      verifications,
       pagination: { page, limit, total, pages: Math.ceil(total / limit) }
     });
   } catch (error) {

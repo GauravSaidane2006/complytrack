@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { useUploadDocumentMutation, useGetOnboardingRequirementsQuery, useDevBypassMutation } from '../store/api/api';
 import { toast } from 'react-hot-toast';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import { LogoWithTagline } from '../components/common/Logo';
 
 export default function DocumentUpload() {
   const navigate = useNavigate();
@@ -24,18 +25,18 @@ export default function DocumentUpload() {
 
   if (verificationStatus === 'verified') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-stone-900 via-stone-800 to-orange-950 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 text-center max-w-md border border-stone-200/60">
+      <div className="min-h-screen canvas-gradient flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 text-center max-w-md border border-slate-200/60">
           <div className="w-16 h-16 bg-gradient-to-br from-emerald-100 to-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <svg className="w-8 h-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-8 h-8 text-success-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-stone-900 mb-2">Account Verified!</h2>
-          <p className="text-stone-500 mb-6">Your account has been verified. You can now access all features.</p>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Account Verified!</h2>
+          <p className="text-slate-500 mb-6">Your account has been verified. You can now access all features.</p>
           <button
             onClick={() => navigate('/dashboard')}
-            className="w-full py-3 bg-gradient-to-r from-orange-600 to-orange-500 text-white rounded-xl font-medium hover:from-orange-700 hover:to-orange-600 shadow-lg shadow-orange-500/25 transition-all duration-200"
+            className="w-full py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-primary-700 shadow-lg shadow-primary/25 transition-all duration-200"
           >
             Go to Dashboard
           </button>
@@ -107,11 +108,11 @@ export default function DocumentUpload() {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'approved': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+      case 'approved': return 'bg-success-100 text-success-700 border-success-200';
       case 'uploaded':
-      case 'pending': return 'bg-amber-100 text-amber-700 border-amber-200';
-      case 'rejected': return 'bg-rose-100 text-rose-700 border-rose-200';
-      default: return 'bg-stone-100 text-stone-700 border-stone-200';
+      case 'pending': return 'bg-warning-100 text-warning-700 border-warning-200';
+      case 'rejected': return 'bg-danger-100 text-danger-600 border-danger-200';
+      default: return 'bg-slate-100 text-slate-700 border-slate-200';
     }
   };
 
@@ -130,30 +131,26 @@ export default function DocumentUpload() {
     .every(d => getDocStatus(d.type) !== 'pending');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-900 via-stone-800 to-orange-950 p-4 md:p-8">
+    <div className="min-h-screen canvas-gradient p-4 md:p-8">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 mb-4 shadow-xl shadow-orange-500/30">
-            <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-          </div>
+          <LogoWithTagline light className="mb-4" />
           <h1 className="text-3xl font-bold text-white tracking-tight">Upload Documents</h1>
-          <p className="text-stone-400 mt-2">Please upload the required documents for verification</p>
-          <div className="mt-3 inline-block bg-orange-500/20 text-orange-300 px-3 py-1 rounded-full text-sm">
+          <p className="text-slate-400 mt-2">Please upload the required documents for verification</p>
+          <div className="mt-3 inline-block bg-primary-500/20 text-primary-300 px-3 py-1 rounded-full text-sm">
             Sector: {sector.charAt(0).toUpperCase() + sector.slice(1)}
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 border border-stone-200/60">
-          <div className="mb-6 p-4 bg-orange-50 border border-orange-200/60 rounded-xl">
-            <h3 className="font-semibold text-orange-800 flex items-center gap-2">
+        <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 border border-slate-200/60">
+          <div className="mb-6 p-4 bg-primary-50 border border-primary-200/60 rounded-xl">
+            <h3 className="font-semibold text-primary-700 flex items-center gap-2">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Document Requirements
             </h3>
-            <p className="text-sm text-orange-700 mt-1">
+            <p className="text-sm text-primary-600 mt-1">
               Upload clear photos or PDF scans of your documents. Accepted formats: PDF, JPG, PNG (Max 10MB each).
             </p>
           </div>
@@ -165,7 +162,7 @@ export default function DocumentUpload() {
                 <div
                   key={doc.type}
                   className={`border-2 rounded-2xl p-4 transition-all duration-200 ${
-                    dragOver === doc.type ? 'border-orange-500 bg-orange-50/60' : 'border-stone-200'
+                    dragOver === doc.type ? 'border-primary-500 bg-primary-50/60' : 'border-slate-200'
                   }`}
                   onDrop={(e) => handleDrop(e, doc.type)}
                   onDragOver={(e) => handleDragOver(e, doc.type)}
@@ -175,9 +172,9 @@ export default function DocumentUpload() {
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{doc.icon}</span>
                       <div>
-                        <h4 className="font-medium text-stone-900">{doc.name}</h4>
+                        <h4 className="font-medium text-slate-900">{doc.name}</h4>
                         {doc.required && (
-                          <span className="text-xs text-rose-500 font-medium">Required</span>
+                          <span className="text-xs text-danger-500 font-medium">Required</span>
                         )}
                       </div>
                     </div>
@@ -198,7 +195,7 @@ export default function DocumentUpload() {
                       <button
                         onClick={() => fileInputRefs.current[doc.type]?.click()}
                         disabled={uploading}
-                        className="flex-1 py-2.5 border-2 border-dashed border-stone-300 rounded-xl text-stone-600 hover:border-orange-400 hover:text-orange-600 transition-colors flex items-center justify-center gap-2"
+                        className="flex-1 py-2.5 border-2 border-dashed border-slate-300 rounded-xl text-slate-600 hover:border-primary-400 hover:text-primary-600 transition-colors flex items-center justify-center gap-2"
                       >
                         {uploading ? (
                           <LoadingSpinner size="sm" />
@@ -226,7 +223,7 @@ export default function DocumentUpload() {
                       <button
                         onClick={() => fileInputRefs.current[doc.type]?.click()}
                         disabled={uploading}
-                        className="flex-1 py-2.5 border-2 border-dashed border-rose-300 rounded-xl text-rose-600 hover:border-rose-500 transition-colors flex items-center justify-center gap-2"
+                        className="flex-1 py-2.5 border-2 border-dashed border-danger-300 rounded-xl text-danger-500 hover:border-rose-500 transition-colors flex items-center justify-center gap-2"
                       >
                         {uploading ? (
                           <LoadingSpinner size="sm" />
@@ -241,7 +238,7 @@ export default function DocumentUpload() {
                       </button>
                       <button
                         onClick={() => navigate('/register/help')}
-                        className="px-4 py-2.5 text-rose-600 hover:text-rose-700 font-medium text-sm"
+                        className="px-4 py-2.5 text-danger-500 hover:text-danger-600 font-medium text-sm"
                       >
                         Get Help
                       </button>
@@ -249,7 +246,7 @@ export default function DocumentUpload() {
                   )}
 
                   {(status === 'uploaded' || status === 'approved') && (
-                    <div className="flex items-center gap-2 text-emerald-600">
+                    <div className="flex items-center gap-2 text-success-600">
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
@@ -268,7 +265,7 @@ export default function DocumentUpload() {
               <button
                 onClick={handleDevBypass}
                 disabled={bypassing}
-                className="px-4 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-medium text-sm hover:from-violet-700 hover:to-purple-700 disabled:opacity-50 flex items-center justify-center gap-2 shadow-md transition-all duration-200"
+                className="px-4 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium text-sm hover:from-violet-700 hover:to-purple-700 disabled:opacity-50 flex items-center justify-center gap-2 shadow-md transition-all duration-200"
               >
                 {bypassing ? <LoadingSpinner size="sm" /> : (
                   <>
@@ -283,7 +280,7 @@ export default function DocumentUpload() {
             
             <button
               onClick={() => navigate('/register/help')}
-              className="px-4 py-3 border border-stone-200 text-stone-700 rounded-xl font-medium text-sm hover:bg-stone-50 flex items-center justify-center gap-2 transition-colors"
+              className="px-4 py-3 border border-slate-200 text-slate-700 rounded-xl font-medium text-sm hover:bg-slate-50 flex items-center justify-center gap-2 transition-colors"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -293,7 +290,7 @@ export default function DocumentUpload() {
 
             <button
               onClick={() => navigate('/dashboard')}
-              className="px-4 py-3 border border-stone-200 text-stone-700 rounded-xl font-medium text-sm hover:bg-stone-50 transition-colors"
+              className="px-4 py-3 border border-slate-200 text-slate-700 rounded-xl font-medium text-sm hover:bg-slate-50 transition-colors"
             >
               Skip for now
             </button>
@@ -301,7 +298,7 @@ export default function DocumentUpload() {
             <button
               onClick={() => navigate('/verification-status')}
               disabled={!allRequiredUploaded}
-              className="flex-1 py-3 bg-gradient-to-r from-orange-600 to-orange-500 text-white rounded-xl font-medium text-sm hover:from-orange-700 hover:to-orange-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-orange-500/25 transition-all duration-200"
+              className="flex-1 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium text-sm hover:from-primary-600 hover:to-primary-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-primary/25 transition-all duration-200"
             >
               {allRequiredUploaded ? 'Submit for Review' : 'Upload all required documents'}
             </button>
@@ -311,7 +308,7 @@ export default function DocumentUpload() {
         <div className="mt-6 text-center">
           <button
             onClick={() => navigate('/dashboard')}
-            className="text-stone-400 hover:text-white text-sm transition-colors"
+            className="text-slate-400 hover:text-white text-sm transition-colors"
           >
             ← Back to Dashboard
           </button>

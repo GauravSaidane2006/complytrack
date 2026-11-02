@@ -72,72 +72,72 @@ export default function Contracts() {
         description="Manage contracts and lifecycle tracking"
         actions={
           <button onClick={() => { setEditing(null); setForm(emptyForm); setShowModal(true) }}
-            className="px-5 py-2.5 bg-gradient-to-r from-orange-600 to-orange-500 text-white rounded-xl text-sm font-medium hover:from-orange-700 hover:to-orange-600 shadow-md shadow-orange-500/20 transition-all duration-200">
+            className="px-5 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl text-sm font-medium hover:from-primary-600 hover:to-primary-700 shadow-md shadow-primary/20 transition-all duration-200">
             + New Contract
           </button>
         }
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-2xl border border-stone-200/60 p-4 shadow-sm">
-          <p className="text-xs text-stone-500 font-medium">Total</p>
-          <p className="text-xl font-bold text-stone-900">{stats?.total || 0}</p>
+        <div className="bg-white rounded-2xl border border-slate-200/60 p-4 shadow-sm">
+          <p className="text-xs text-slate-500 font-medium">Total</p>
+          <p className="text-xl font-bold text-slate-900">{stats?.total || 0}</p>
         </div>
-        <div className="bg-white rounded-2xl border border-emerald-200/60 p-4 shadow-sm">
+        <div className="bg-white rounded-2xl border border-success-200/60 p-4 shadow-sm">
           <p className="text-xs text-emerald-500 font-medium">Active</p>
-          <p className="text-xl font-bold text-emerald-600">{stats?.active || 0}</p>
+          <p className="text-xl font-bold text-success-600">{stats?.active || 0}</p>
         </div>
-        <div className="bg-white rounded-2xl border border-amber-200/60 p-4 shadow-sm">
+        <div className="bg-white rounded-2xl border border-warning-200/60 p-4 shadow-sm">
           <p className="text-xs text-amber-500 font-medium">Expiring Soon</p>
-          <p className="text-xl font-bold text-amber-600">{stats?.expiringSoon?.length || 0}</p>
+          <p className="text-xl font-bold text-warning-600">{stats?.expiringSoon?.length || 0}</p>
         </div>
-        <div className="bg-white rounded-2xl border border-stone-200/60 p-4 shadow-sm">
-          <p className="text-xs text-stone-500 font-medium">Total Value</p>
-          <p className="text-xl font-bold text-stone-900">₹{(stats?.totalValue || 0).toLocaleString()}</p>
+        <div className="bg-white rounded-2xl border border-slate-200/60 p-4 shadow-sm">
+          <p className="text-xs text-slate-500 font-medium">Total Value</p>
+          <p className="text-xl font-bold text-slate-900">₹{(stats?.totalValue || 0).toLocaleString()}</p>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-stone-200/60 shadow-sm">
+      <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm">
         {contracts.length === 0 ? (
-          <div className="text-center py-12 text-sm text-stone-500">No contracts yet</div>
+          <div className="text-center py-12 text-sm text-slate-500">No contracts yet</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-stone-50/80">
+              <thead className="bg-slate-50/80">
                 <tr>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider">Title</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider hidden sm:table-cell">Party</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider hidden md:table-cell">Type</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider hidden lg:table-cell">Value</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider hidden md:table-cell">End Date</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider">Status</th>
-                  <th className="text-right px-4 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider">Actions</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Title</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:table-cell">Party</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">Type</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden lg:table-cell">Value</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">End Date</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+                  <th className="text-right px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-stone-100">
+              <tbody className="divide-y divide-slate-100">
                 {contracts.map((c) => (
-                  <tr key={c._id} className="hover:bg-orange-50/30 transition-colors">
+                  <tr key={c._id} className="hover:bg-primary-50/30 transition-colors">
                     <td className="px-4 py-3.5">
-                      <p className="text-sm font-medium text-stone-900">{c.title}</p>
-                      <p className="text-xs text-stone-500 sm:hidden">{c.party}</p>
+                      <p className="text-sm font-medium text-slate-900">{c.title}</p>
+                      <p className="text-xs text-slate-500 sm:hidden">{c.party}</p>
                     </td>
-                    <td className="px-4 py-3.5 text-sm text-stone-600 hidden sm:table-cell">{c.party}</td>
-                    <td className="px-4 py-3.5 text-sm capitalize text-stone-600 hidden md:table-cell">{c.type}</td>
-                    <td className="px-4 py-3.5 text-sm text-stone-600 hidden lg:table-cell">₹{(c.value || 0).toLocaleString()}</td>
-                    <td className="px-4 py-3.5 text-sm text-stone-600 hidden md:table-cell">
+                    <td className="px-4 py-3.5 text-sm text-slate-600 hidden sm:table-cell">{c.party}</td>
+                    <td className="px-4 py-3.5 text-sm capitalize text-slate-600 hidden md:table-cell">{c.type}</td>
+                    <td className="px-4 py-3.5 text-sm text-slate-600 hidden lg:table-cell">₹{(c.value || 0).toLocaleString()}</td>
+                    <td className="px-4 py-3.5 text-sm text-slate-600 hidden md:table-cell">
                       {c.endDate ? new Date(c.endDate).toLocaleDateString() : '-'}
                     </td>
                     <td className="px-4 py-3.5"><StatusBadge status={c.status} /></td>
                     <td className="px-4 py-3.5 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button onClick={() => handleEdit(c)}
-                          className="p-1 text-stone-400 hover:text-orange-600 transition-colors">
+                          className="p-1 text-slate-400 hover:text-primary-600 transition-colors">
                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
                         </button>
                         <button onClick={() => handleDelete(c._id)}
-                          className="p-1 text-stone-400 hover:text-rose-600 transition-colors">
+                          className="p-1 text-slate-400 hover:text-danger-500 transition-colors">
                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                           </svg>
@@ -156,48 +156,48 @@ export default function Contracts() {
         title={editing ? 'Edit Contract' : 'New Contract'} size="lg">
         <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="col-span-2">
-            <label className="block text-sm font-medium text-stone-700 mb-1.5">Title</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Title</label>
             <input type="text" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })}
-              className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all" />
           </div>
           <div className="col-span-2">
-            <label className="block text-sm font-medium text-stone-700 mb-1.5">Party</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Party</label>
             <input type="text" value={form.party} onChange={(e) => setForm({ ...form, party: e.target.value })}
-              className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1.5">Type</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Type</label>
             <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}
-              className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all">
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all">
               {['vendor', 'client', 'employee', 'lease', 'service', 'partnership', 'other'].map(t => (
                 <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>
               ))}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1.5">Value (INR)</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Value (INR)</label>
             <input type="number" value={form.value} onChange={(e) => setForm({ ...form, value: e.target.value })}
-              className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1.5">Start Date</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Start Date</label>
             <input type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-              className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1.5">End Date</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">End Date</label>
             <input type="date" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-              className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1.5">Renewal Date</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Renewal Date</label>
             <input type="date" value={form.renewalDate} onChange={(e) => setForm({ ...form, renewalDate: e.target.value })}
-              className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1.5">Status</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Status</label>
             <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}
-              className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all">
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all">
               <option value="draft">Draft</option>
               <option value="active">Active</option>
               <option value="expired">Expired</option>
@@ -206,12 +206,12 @@ export default function Contracts() {
           </div>
           <div className="col-span-2">
             <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
-              placeholder="Description" rows={2} className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
+              placeholder="Description" rows={2} className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all" />
           </div>
           <div className="col-span-2 flex justify-end gap-3 pt-2">
             <button type="button" onClick={() => { setShowModal(false); setEditing(null); setForm(emptyForm) }}
-              className="px-4 py-2 text-sm border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors">Cancel</button>
-            <button type="submit" className="px-4 py-2 text-sm bg-gradient-to-r from-orange-600 to-orange-500 text-white rounded-xl shadow-md shadow-orange-500/20 transition-all duration-200">
+              className="px-4 py-2 text-sm border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">Cancel</button>
+            <button type="submit" className="px-4 py-2 text-sm bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl shadow-md shadow-primary/20 transition-all duration-200">
               {editing ? 'Update' : 'Create'}
             </button>
           </div>

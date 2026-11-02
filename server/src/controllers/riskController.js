@@ -1,5 +1,6 @@
 const RiskAssessment = require('../models/RiskAssessment');
 const Compliance = require('../models/Compliance');
+const { emitToOrg } = require('../utils/socketHelper');
 
 exports.getRiskAssessments = async (req, res, next) => {
   try {
@@ -59,6 +60,7 @@ exports.assessRisk = async (req, res, next) => {
       priority: riskScore >= 70 ? 'critical' : riskScore >= 50 ? 'high' : riskScore >= 30 ? 'medium' : 'low'
     });
 
+    emitToOrg(req.organizationId, 'risk:created', { _id: assessment._id, riskScore, impact });
     res.status(201).json(assessment);
   } catch (error) {
     next(error);
@@ -85,6 +87,7 @@ exports.updateRiskStatus = async (req, res, next) => {
       await Compliance.findByIdAndUpdate(assessment.complianceItem, { riskScore: 0, priority: 'low' });
     }
 
+    emitToOrg(req.organizationId, 'risk:updated', { _id: assessment._id, status: assessment.status });
     res.json(assessment);
   } catch (error) {
     next(error);

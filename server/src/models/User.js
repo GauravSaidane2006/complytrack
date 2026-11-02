@@ -20,7 +20,10 @@ const userSchema = new mongoose.Schema({
   },
   isActive: { type: Boolean, default: true },
   refreshToken: { type: String },
-  lastLogin: Date
+  loginAttempts: { type: Number, default: 0 },
+  lockUntil: { type: Date },
+  lastLogin: Date,
+  lastLoginDigestSent: Date
 }, { timestamps: true });
 
 userSchema.pre('save', async function (next) {

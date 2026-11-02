@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import DashboardLayout from './components/layout/DashboardLayout'
+import AnimatedPage from './components/common/AnimatedPage'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import RegistrationFlow from './pages/RegistrationFlow'
@@ -27,6 +28,8 @@ import Notices from './pages/Notices'
 import Questionnaire from './pages/Questionnaire'
 import SectorPdfs from './pages/SectorPdfs'
 import ContactSupport from './pages/ContactSupport'
+import AdminDocumentReview from './pages/AdminDocumentReview'
+import MainServerStatus from './components/common/MainServerStatus'
 
 function ProtectedRoute({ children, allowedRoles }) {
   const { isAuthenticated, user } = useSelector((state) => state.auth)
@@ -57,43 +60,51 @@ function CompanyAdminRoute({ children }) {
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<RegistrationFlow />} />
-      <Route path="/register/old" element={<Register />} />
+    <>
+      <MainServerStatus />
+      <Routes>
+      <Route path="/login" element={
+        <AnimatedPage><Login /></AnimatedPage>
+      } />
+      <Route path="/register" element={
+        <AnimatedPage><RegistrationFlow /></AnimatedPage>
+      } />
+      <Route path="/register/old" element={
+        <AnimatedPage><Register /></AnimatedPage>
+      } />
       <Route path="/onboarding" element={
         <ProtectedRoute>
-          <Onboarding />
+          <AnimatedPage><Onboarding /></AnimatedPage>
         </ProtectedRoute>
       } />
       <Route path="/register/documents" element={
         <ProtectedRoute>
-          <DocumentUpload />
+          <AnimatedPage><DocumentUpload /></AnimatedPage>
         </ProtectedRoute>
       } />
       <Route path="/verification-status" element={
         <ProtectedRoute>
-          <VerificationStatus />
+          <AnimatedPage><VerificationStatus /></AnimatedPage>
         </ProtectedRoute>
       } />
       <Route path="/register/help" element={
         <ProtectedRoute>
-          <DocumentHelp />
+          <AnimatedPage><DocumentHelp /></AnimatedPage>
         </ProtectedRoute>
       } />
       <Route path="/contact-support" element={
         <ProtectedRoute>
-          <ContactSupport />
+          <AnimatedPage><ContactSupport /></AnimatedPage>
         </ProtectedRoute>
       } />
       <Route path="/compliance-setup" element={
         <ProtectedRoute>
-          <ComplianceSetup />
+          <AnimatedPage><ComplianceSetup /></AnimatedPage>
         </ProtectedRoute>
       } />
       <Route path="/questionnaire" element={
         <ProtectedRoute>
-          <Questionnaire />
+          <AnimatedPage><Questionnaire /></AnimatedPage>
         </ProtectedRoute>
       } />
 
@@ -113,14 +124,27 @@ export default function App() {
             <DeveloperOrganizationDetails />
           </DeveloperRoute>
         } />
+        <Route path="/document-review" element={
+          <ProtectedRoute allowedRoles={['admin', 'superadmin', 'developer']}>
+            <AdminDocumentReview />
+          </ProtectedRoute>
+        } />
         <Route path="/compliance" element={<ComplianceList />} />
         <Route path="/compliance/new" element={<ComplianceForm />} />
         <Route path="/compliance/:id" element={<ComplianceDetail />} />
         <Route path="/compliance/:id/edit" element={<ComplianceForm />} />
         <Route path="/templates" element={<Templates />} />
-        <Route path="/reports" element={<Reports />} />
+        <Route path="/reports" element={
+          <ProtectedRoute allowedRoles={['admin', 'superadmin', 'developer', 'manager']}>
+            <Reports />
+          </ProtectedRoute>
+        } />
         <Route path="/alerts" element={<Alerts />} />
-        <Route path="/notices" element={<Notices />} />
+        <Route path="/notices" element={
+          <ProtectedRoute allowedRoles={['admin', 'superadmin', 'developer', 'manager']}>
+            <Notices />
+          </ProtectedRoute>
+        } />
         <Route path="/questionnaire" element={
           <ProtectedRoute>
             <Questionnaire />
@@ -140,6 +164,7 @@ export default function App() {
 
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
-    </Routes>
+      </Routes>
+    </>
   )
 }

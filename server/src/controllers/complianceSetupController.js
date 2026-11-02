@@ -164,19 +164,70 @@ exports.autoCreateCompliances = async (req, res, next) => {
 
       let dueDate;
       const freq = template.frequency;
+
       if (freq === 'monthly') {
-        dueDate = new Date(now);
-        dueDate.setMonth(dueDate.getMonth() + 1);
-        dueDate.setDate(15);
+        if (template.id === 'GST_GSTR1') {
+          dueDate = new Date(now);
+          dueDate.setMonth(dueDate.getMonth() + 1);
+          dueDate.setDate(11);
+        } else if (template.id === 'GST_GSTR3B') {
+          dueDate = new Date(now);
+          dueDate.setMonth(dueDate.getMonth() + 1);
+          dueDate.setDate(20);
+        } else if (template.id.startsWith('TDS_') && template.id !== 'TDS_RETURN') {
+          dueDate = new Date(now);
+          dueDate.setMonth(dueDate.getMonth() + 1);
+          dueDate.setDate(7);
+        } else if (template.id === 'PF_MONTHLY') {
+          dueDate = new Date(now);
+          dueDate.setMonth(dueDate.getMonth() + 1);
+          dueDate.setDate(15);
+        } else if (template.id === 'ESI_MONTHLY') {
+          dueDate = new Date(now);
+          dueDate.setMonth(dueDate.getMonth() + 1);
+          dueDate.setDate(15);
+        } else {
+          dueDate = new Date(now);
+          dueDate.setMonth(dueDate.getMonth() + 1);
+          dueDate.setDate(15);
+        }
       } else if (freq === 'quarterly') {
-        dueDate = new Date(now);
-        const currentQuarter = Math.floor(dueDate.getMonth() / 3);
-        const nextQuarterEnd = (currentQuarter + 1) * 3;
-        dueDate.setMonth(nextQuarterEnd);
-        dueDate.setDate(15);
+        if (template.id === 'GST_GSTR1_Q') {
+          const currentQuarter = Math.floor(now.getMonth() / 3);
+          const nextQuarterMonth = (currentQuarter + 1) * 3;
+          dueDate = new Date(now.getFullYear(), nextQuarterMonth, 13);
+        } else if (template.id === 'GST_GSTR3B_Q') {
+          const currentQuarter = Math.floor(now.getMonth() / 3);
+          const nextQuarterMonth = (currentQuarter + 1) * 3;
+          dueDate = new Date(now.getFullYear(), nextQuarterMonth, 22);
+        } else if (template.id === 'TDS_RETURN') {
+          const currentQuarter = Math.floor(now.getMonth() / 3);
+          const nextQuarterMonth = (currentQuarter + 1) * 3;
+          dueDate = new Date(now.getFullYear(), nextQuarterMonth, 31);
+        } else if (template.id === 'IT_ADVANCE') {
+          const month = now.getMonth();
+          if (month < 3) dueDate = new Date(now.getFullYear(), 5, 15);
+          else if (month < 6) dueDate = new Date(now.getFullYear(), 8, 15);
+          else if (month < 9) dueDate = new Date(now.getFullYear(), 11, 15);
+          else dueDate = new Date(now.getFullYear() + 1, 2, 15);
+        } else if (template.id === 'BOARD_MEET') {
+          const currentQuarter = Math.floor(now.getMonth() / 3);
+          const nextQuarterMonth = (currentQuarter + 1) * 3;
+          dueDate = new Date(now.getFullYear(), nextQuarterMonth, 1);
+        } else {
+          dueDate = new Date(now);
+          dueDate.setMonth(dueDate.getMonth() + 3);
+          dueDate.setDate(15);
+        }
       } else if (freq === 'yearly' || freq === 'half-yearly') {
-        dueDate = new Date(now);
-        dueDate.setMonth(dueDate.getMonth() + 3);
+        if (template.id === 'PF_RETURN') {
+          dueDate = new Date(now.getFullYear(), 10, 30);
+        } else if (template.id === 'SHOP_ACT') {
+          dueDate = new Date(now.getFullYear(), 2, 31);
+        } else {
+          dueDate = new Date(now);
+          dueDate.setMonth(dueDate.getMonth() + 3);
+        }
       } else {
         dueDate = new Date(nextYear);
       }

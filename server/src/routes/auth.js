@@ -9,9 +9,9 @@ const { registerLimiter, authLimiter, passwordResetLimiter } = require('../middl
 router.post('/register', registerLimiter, validate(registerSchema), authController.register);
 router.post('/login', authLimiter, validate(loginSchema), authController.login);
 router.post('/refresh-token', authLimiter, authController.refreshToken);
+router.post('/logout', authController.logout);
 router.get('/me', authenticate, authController.getProfile);
 router.put('/profile', authenticate, authController.updateProfile);
-router.post('/logout', authenticate, authController.logout);
 router.post('/change-password', authenticate, passwordResetLimiter, validate(changePasswordSchema), authController.changePassword);
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const Organization = require('../models/Organization');
 const Compliance = require('../models/Compliance');
+const { emitToOrg } = require('../utils/socketHelper');
 
 exports.getOrganization = async (req, res, next) => {
   try {
@@ -22,6 +23,7 @@ exports.updateOrganization = async (req, res, next) => {
     const org = await Organization.findByIdAndUpdate(req.organizationId, updates, {
       new: true, runValidators: true
     });
+    emitToOrg(req.organizationId, 'organization:updated', { _id: org._id, name: org.name });
     res.json(org);
   } catch (error) {
     next(error);

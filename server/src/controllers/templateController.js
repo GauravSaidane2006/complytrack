@@ -1,4 +1,5 @@
 const Template = require('../models/Template');
+const { emitToOrg } = require('../utils/socketHelper');
 
 exports.getTemplates = async (req, res, next) => {
   try {
@@ -42,6 +43,7 @@ exports.createTemplate = async (req, res, next) => {
       organization: req.organizationId,
       createdBy: req.user._id
     });
+    emitToOrg(req.organizationId, 'template:created', { _id: template._id, name: template.name });
     res.status(201).json(template);
   } catch (error) {
     next(error);
@@ -68,9 +70,12 @@ exports.updateTemplate = async (req, res, next) => {
       if (req.body[field] !== undefined) updates[field] = req.body[field];
     }
 
-    const updated = await Template.findByIdAndUpdate(req.params.id, updates, {
-      new: true, runValidators: true
-    });
+    const updated = await Template.findOneAndUpdate(
+      { _id: req.params.id, organization: req.organizationId },
+      updates,
+      { new: true, runValidators: true }
+    );
+    emitToOrg(req.organizationId, 'template:updated', { _id: updated._id, name: updated.name });
     res.json(updated);
   } catch (error) {
     next(error);
@@ -87,7 +92,8 @@ exports.deleteTemplate = async (req, res, next) => {
     if (template.isSystem) {
       return res.status(403).json({ message: 'Cannot delete system templates.' });
     }
-    await Template.findByIdAndDelete(req.params.id);
+    await Template.findOneAndDelete({ _id: req.params.id, organization: req.organizationId });
+    emitToOrg(req.organizationId, 'template:deleted', { _id: req.params.id });
     res.json({ message: 'Template deleted.' });
   } catch (error) {
     next(error);

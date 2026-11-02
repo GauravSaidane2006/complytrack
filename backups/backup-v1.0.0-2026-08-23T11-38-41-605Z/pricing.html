@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ComplyTrack — Pricing &amp; Subscription Model</title>
+<style>
+  @page { size: A4; margin: 20mm; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; color: #1a1a1a; line-height: 1.6; background: #fff; padding: 40px; max-width: 900px; margin: 0 auto; }
+
+  .header { text-align: center; margin-bottom: 50px; padding-bottom: 30px; border-bottom: 3px solid #f97316; }
+  .header h1 { font-size: 36px; font-weight: 800; color: #1a1a1a; letter-spacing: -0.5px; }
+  .header .subtitle { font-size: 16px; color: #6b7280; margin-top: 8px; }
+  .header .tagline { font-size: 14px; color: #f97316; font-weight: 600; margin-top: 12px; text-transform: uppercase; letter-spacing: 2px; }
+  .header .date { font-size: 13px; color: #9ca3af; margin-top: 6px; }
+
+  h2 { font-size: 22px; font-weight: 700; color: #1a1a1a; margin: 40px 0 16px 0; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb; }
+  h3 { font-size: 17px; font-weight: 600; color: #374151; margin: 24px 0 12px 0; }
+
+  p { margin-bottom: 12px; font-size: 14px; color: #374151; }
+  .lead { font-size: 16px; color: #4b5563; margin-bottom: 20px; }
+
+  table { width: 100%; border-collapse: collapse; margin: 16px 0 24px 0; font-size: 14px; }
+  th { background: #1a1a1a; color: #fff; padding: 12px 16px; text-align: left; font-weight: 600; }
+  td { padding: 12px 16px; border-bottom: 1px solid #e5e7eb; }
+  tr:nth-child(even) { background: #f9fafb; }
+  tr:hover { background: #fff7ed; }
+
+  .highlight-row { background: #fff7ed !important; }
+  .highlight-row td { font-weight: 600; color: #c2410c; }
+
+  .tier-card { border: 2px solid #e5e7eb; border-radius: 12px; padding: 24px; margin: 16px 0; }
+  .tier-card.recommended { border-color: #f97316; background: #fff7ed; }
+  .tier-name { font-size: 20px; font-weight: 700; color: #1a1a1a; }
+  .tier-price { font-size: 28px; font-weight: 800; color: #f97316; margin: 8px 0; }
+  .tier-price span { font-size: 14px; font-weight: 400; color: #6b7280; }
+  .tier-desc { font-size: 14px; color: #6b7280; margin-bottom: 12px; }
+  .tier-features { list-style: none; padding: 0; }
+  .tier-features li { padding: 6px 0; font-size: 14px; color: #374151; }
+  .tier-features li::before { content: "✓ "; color: #16a34a; font-weight: 700; }
+
+  .cost-table td:last-child, .cost-table th:last-child { text-align: right; }
+  .revenue-table td:last-child, .revenue-table th:last-child { text-align: right; }
+
+  .split-box { display: flex; gap: 16px; margin: 16px 0; }
+  .split-item { flex: 1; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; text-align: center; }
+  .split-pct { font-size: 28px; font-weight: 800; color: #f97316; }
+  .split-label { font-size: 13px; color: #6b7280; margin-top: 4px; }
+
+  .callout { background: #fff7ed; border-left: 4px solid #f97316; padding: 16px 20px; margin: 20px 0; border-radius: 0 8px 8px 0; }
+  .callout p { margin: 0; color: #92400e; font-weight: 500; }
+
+  .section-badge { display: inline-block; background: #f97316; color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+
+  .footer { margin-top: 50px; padding-top: 20px; border-top: 2px solid #e5e7eb; text-align: center; font-size: 12px; color: #9ca3af; }
+
+  @media print {
+    body { padding: 0; }
+    .no-break { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="tagline">Compliance Management Software</div>
+  <h1>Pricing &amp; Subscription Model</h1>
+  <div class="subtitle">ComplyTrack — Desktop Server Edition</div>
+  <div class="date">Confidential — Internal Use Only</div>
+</div>
+
+<!-- SECTION 1: BUSINESS MODEL -->
+<h2><span class="section-badge">Model</span> Business Overview</h2>
+<p class="lead">ComplyTrack is a desktop-deployed compliance management platform for Indian businesses. Each customer receives a dedicated desktop server with the software pre-installed. Revenue comes from a one-time license fee (covering hardware + setup) and recurring yearly subscriptions for updates and support.</p>
+
+<table>
+  <tr><th>Aspect</th><th>Details</th></tr>
+  <tr><td><strong>Deployment</strong></td><td>On-premise desktop server (not cloud)</td></tr>
+  <tr><td><strong>License Scope</strong></td><td>Per organization — unlimited stores per license</td></tr>
+  <tr><td><strong>Revenue Type</strong></td><td>One-time license + Yearly subscription</td></tr>
+  <tr><td><strong>Target Market</strong></td><td>Indian businesses with 5–15 stores (Phase 1)</td></tr>
+  <tr><td><strong>Team</strong></td><td>3 members: Developer, Legal, Marketing</td></tr>
+</table>
+
+<!-- SECTION 2: PRICING TIERS -->
+<h2><span class="section-badge">Pricing</span> Subscription Tiers</h2>
+
+<div class="tier-card">
+  <div class="tier-name">Starter</div>
+  <div class="tier-price">₹45,000 <span>one-time</span></div>
+  <div class="tier-desc">For small businesses with 1–5 stores</div>
+  <table>
+    <tr><th>Component</th><th>Amount</th></tr>
+    <tr><td>One-time license + hardware + setup</td><td>₹45,000</td></tr>
+    <tr><td>Yearly updates + support</td><td>₹18,000 / year</td></tr>
+  </table>
+  <ul class="tier-features">
+    <li>Desktop server hardware + software installation</li>
+    <li>Up to 5 stores / locations</li>
+    <li>All compliance modules included</li>
+    <li>Yearly regulatory updates</li>
+    <li>Email support</li>
+  </ul>
+</div>
+
+<div class="tier-card recommended">
+  <div class="tier-name">Growth ⭐ Recommended</div>
+  <div class="tier-price">₹85,000 <span>one-time</span></div>
+  <div class="tier-desc">For growing businesses with 6–15 stores — primary target</div>
+  <table>
+    <tr><th>Component</th><th>Amount</th></tr>
+    <tr><td>One-time license + hardware + setup</td><td>₹85,000</td></tr>
+    <tr><td>Yearly updates + support</td><td>₹35,000 / year</td></tr>
+  </table>
+  <ul class="tier-features">
+    <li>Desktop server hardware + software installation</li>
+    <li>Up to 15 stores / locations</li>
+    <li>All compliance modules included</li>
+    <li>Yearly regulatory updates</li>
+    <li>Priority email + phone support</li>
+    <li>Quarterly compliance health reports</li>
+  </ul>
+</div>
+
+<div class="tier-card">
+  <div class="tier-name">Enterprise</div>
+  <div class="tier-price">₹1,50,000 <span>one-time</span></div>
+  <div class="tier-desc">For larger companies with 16–50 stores</div>
+  <table>
+    <tr><th>Component</th><th>Amount</th></tr>
+    <tr><td>One-time license + hardware + setup</td><td>₹1,50,000</td></tr>
+    <tr><td>Yearly updates + support</td><td>₹60,000 / year</td></tr>
+  </table>
+  <ul class="tier-features">
+    <li>Desktop server hardware + software installation</li>
+    <li>Up to 50 stores / locations</li>
+    <li>All compliance modules included</li>
+    <li>Yearly regulatory updates</li>
+    <li>Priority support (email + phone)</li>
+    <li>Monthly compliance health reports</li>
+    <li>Custom compliance module requests (1/year)</li>
+  </ul>
+</div>
+
+<div class="tier-card">
+  <div class="tier-name">Franchise / Chain</div>
+  <div class="tier-price">Custom Pricing</div>
+  <div class="tier-desc">For businesses with 50+ stores — negotiated per deal</div>
+  <ul class="tier-features">
+    <li>Custom deployment plan</li>
+    <li>Volume discounts</li>
+    <li>Dedicated account manager</li>
+    <li>SLA-backed support</li>
+    <li>Custom integrations available</li>
+  </ul>
+</div>
+
+<!-- SECTION 3: TRIAL MODEL -->
+<h2><span class="section-badge">Trial</span> Free Trial Program</h2>
+<table>
+  <tr><th>Aspect</th><th>Details</th></tr>
+  <tr><td><strong>Trial Duration</strong></td><td>30 days — full access, all features</td></tr>
+  <tr><td><strong>Credit Card Required</strong></td><td>No</td></tr>
+  <tr><td><strong>Data After Trial</strong></td><td>Preserved for 90 days — read-only access</td></tr>
+  <tr><td><strong>Conversion Hook</strong></td><td>High switching cost — questionnaire + compliance data already entered</td></tr>
+  <tr><td><strong>Post-Trial</strong></td><td>Features lock to read-only; data unlock requires paid license</td></tr>
+</table>
+
+<!-- SECTION 4: COST BREAKDOWN -->
+<h2><span class="section-badge">Costs</span> Monthly Overhead</h2>
+<table class="cost-table">
+  <tr><th>Expense</th><th>Monthly (₹)</th></tr>
+  <tr><td>Developer</td><td>40,000 – 60,000</td></tr>
+  <tr><td>Legal / Compliance Expert</td><td>35,000 – 50,000</td></tr>
+  <tr><td>Marketing / Sales</td><td>30,000 – 45,000</td></tr>
+  <tr><td>Office, Internet, Misc</td><td>10,000 – 15,000</td></tr>
+  <tr class="highlight-row"><td><strong>Total Monthly Overhead</strong></td><td><strong>1,15,000 – 1,70,000</strong></td></tr>
+</table>
+
+<h3>Desktop Server — Hardware Specifications</h3>
+<p>The ComplyTrack server runs on a small desktop PC or mini PC placed at the customer's office. The stack is lightweight (Node.js + MongoDB + React), so consumer-grade hardware is sufficient.</p>
+
+<table>
+  <tr><th>Component</th><th>Minimum Spec</th><th>Recommended Spec</th><th>Notes</th></tr>
+  <tr>
+    <td><strong>CPU</strong></td>
+    <td>Intel i3 / AMD Ryzen 3 (4 cores)</td>
+    <td>Intel i5 / AMD Ryzen 5 (4–6 cores)</td>
+    <td>Node.js is single-threaded; MongoDB benefits from faster cores, not many cores</td>
+  </tr>
+  <tr>
+    <td><strong>RAM</strong></td>
+    <td>8 GB DDR4</td>
+    <td>16 GB DDR4</td>
+    <td>MongoDB uses ~2–4GB, Node.js ~500MB, OS ~2GB. 8GB is fine for &lt;10 stores</td>
+  </tr>
+  <tr>
+    <td><strong>Storage</strong></td>
+    <td>256 GB SSD</td>
+    <td>512 GB SSD</td>
+    <td>MongoDB data + PDFs + uploads. SSD is mandatory — HDD will be painfully slow</td>
+  </tr>
+  <tr>
+    <td><strong>Network</strong></td>
+    <td>100 Mbps Ethernet</td>
+    <td>1 Gbps Ethernet</td>
+    <td>Internal LAN only — no internet bandwidth needed for the app itself</td>
+  </tr>
+  <tr>
+    <td><strong>OS</strong></td>
+    <td>Windows 10 / Ubuntu 22.04</td>
+    <td>Windows 11 / Ubuntu 24.04</td>
+    <td>Docker runs natively on both; Windows is simpler for non-technical users</td>
+  </tr>
+  <tr>
+    <td><strong>Display</strong></td>
+    <td>Any monitor (for initial setup)</td>
+    <td>22" monitor (optional)</td>
+    <td>Headless operation after setup — access via browser from any PC on LAN</td>
+  </tr>
+  <tr>
+    <td><strong>UPS</strong></td>
+    <td>—</td>
+    <td>600VA UPS</td>
+    <td>Prevents data corruption during power cuts; recommended for India</td>
+  </tr>
+</table>
+
+<h3>Recommended Mini PCs (Pre-Built Options)</h3>
+<table>
+  <tr><th>Model</th><th>CPU</th><th>RAM</th><th>Storage</th><th>Approx Price (₹)</th></tr>
+  <tr>
+    <td><strong>Intel NUC 12</strong></td>
+    <td>i5-1240P (12 cores)</td>
+    <td>16 GB</td>
+    <td>512 GB NVMe</td>
+    <td>35,000 – 42,000</td>
+  </tr>
+  <tr>
+    <td><strong>Lenovo ThinkCentre M75q</strong></td>
+    <td>Ryzen 5 PRO 4650G</td>
+    <td>16 GB</td>
+    <td>256 GB SSD</td>
+    <td>28,000 – 35,000</td>
+  </tr>
+  <tr>
+    <td><strong>HP ProDesk 400 G7 Mini</strong></td>
+    <td>i5-10500T</td>
+    <td>8 GB</td>
+    <td>256 GB SSD</td>
+    <td>25,000 – 32,000</td>
+  </tr>
+  <tr>
+    <td><strong>Beelink SER5</strong></td>
+    <td>Ryzen 5 5560U</td>
+    <td>16 GB</td>
+    <td>500 GB SSD</td>
+    <td>22,000 – 28,000</td>
+  </tr>
+  <tr>
+    <td><strong>Custom Build (Budget)</strong></td>
+    <td>i3-12100</td>
+    <td>8 GB</td>
+    <td>256 GB SSD</td>
+    <td>18,000 – 22,000</td>
+  </tr>
+</table>
+
+<h3>Hardware Cost Summary Per Deployment</h3>
+<table class="cost-table">
+  <tr><th>Item</th><th>Cost (₹)</th></tr>
+  <tr><td>Mini PC / desktop server (pre-built or custom)</td><td>22,000 – 35,000</td></tr>
+  <tr><td>600VA UPS (recommended)</td><td>2,500 – 4,000</td></tr>
+  <tr><td>Ethernet cable + setup accessories</td><td>500 – 1,000</td></tr>
+  <tr><td>Delivery + on-site installation</td><td>5,000 – 8,000</td></tr>
+  <tr class="highlight-row"><td><strong>Total Hardware Cost Per Unit</strong></td><td><strong>~30,000 – 48,000</strong></td></tr>
+</table>
+
+<h3>Why This Hardware Is Enough</h3>
+<table>
+  <tr><th>Concern</th><th>Reality</th></tr>
+  <tr><td>"MongoDB needs a powerful server"</td><td>No. For 5–15 stores, the database is &lt;1GB. MongoDB handles millions of documents on a laptop.</td></tr>
+  <tr><td>"We need a server room"</td><td>No. A mini PC sits on a desk. It's the size of a paperback book.</td></tr>
+  <tr><td>"What about backups?"</td><td>MongoDB dumps to a USB drive weekly. Automated via cron job.</td></tr>
+  <tr><td>"What if it crashes?"</td><td>Docker auto-restarts the container. The mini PC reboots and the app comes back up.</td></tr>
+  <tr><td>"Internet goes down?"</td><td>App runs on LAN — no internet needed. Internet only needed for email alerts.</td></tr>
+</table>
+
+<!-- SECTION 5: REVENUE PROJECTIONS -->
+<h2><span class="section-badge">Growth</span> Year 1 Revenue Projections</h2>
+<table class="revenue-table">
+  <tr><th>Scenario</th><th>Customers</th><th>Avg Revenue / Customer</th><th>Total Revenue</th></tr>
+  <tr><td>Conservative</td><td>5</td><td>₹1,20,000</td><td>₹6,00,000</td></tr>
+  <tr><td>Moderate</td><td>10</td><td>₹1,20,000</td><td>₹12,00,000</td></tr>
+  <tr><td>Aggressive</td><td>20</td><td>₹1,20,000</td><td>₹24,00,000</td></tr>
+</table>
+<p style="font-size: 12px; color: #9ca3af;">* Revenue per customer = average of one-time license (₹45K–₹1.5L) + first year subscription (₹18K–₹60K)</p>
+
+<!-- SECTION 6: TEAM SPLIT -->
+<h2><span class="section-badge">Split</span> Revenue Distribution</h2>
+<div class="split-box">
+  <div class="split-item">
+    <div class="split-pct">35%</div>
+    <div class="split-label">Developer</div>
+    <div style="font-size: 12px; color: #6b7280;">Built the product, core value</div>
+  </div>
+  <div class="split-item">
+    <div class="split-pct">25%</div>
+    <div class="split-label">Legal</div>
+    <div style="font-size: 12px; color: #6b7280;">Compliance expertise, customer trust</div>
+  </div>
+  <div class="split-item">
+    <div class="split-pct">25%</div>
+    <div class="split-label">Marketing</div>
+    <div style="font-size: 12px; color: #6b7280;">Pipeline, deals, growth</div>
+  </div>
+  <div class="split-item">
+    <div class="split-pct">15%</div>
+    <div class="split-label">Business Fund</div>
+    <div style="font-size: 12px; color: #6b7280;">Hardware, ops, reinvestment</div>
+  </div>
+</div>
+
+<!-- SECTION 7: VALUE PROPOSITION -->
+<h2><span class="section-badge">Pitch</span> Value Proposition</h2>
+<div class="callout">
+  <p>Don't sell software. Sell compliance peace of mind.</p>
+</div>
+<p>A business owner who gets fined ₹50,000 for missing a filing will gladly pay ₹85,000 to never let that happen again. The pitch isn't "buy this app" — it's <strong>"never get fined, never miss a deadline, never lose sleep."</strong></p>
+
+<h3>Key Selling Points</h3>
+<table>
+  <tr><th>Point</th><th>Message</th></tr>
+  <tr><td>Fine Avoidance</td><td>"One missed filing costs more than a full year of ComplyTrack"</td></tr>
+  <tr><td>Time Savings</td><td>"Stop tracking 50+ compliance deadlines on spreadsheets"</td></tr>
+  <tr><td>Multi-Store</td><td>"One license covers all your stores — no per-location fees"</td></tr>
+  <tr><td>Auto Updates</td><td>"When Indian tax laws change, your system updates automatically"</td></tr>
+  <tr><td>Low Switching Cost</td><td>"Your compliance data is already in the system — why rebuild it?"</td></tr>
+</table>
+
+<!-- SECTION 8: PHASE 2 -->
+<h2><span class="section-badge">Future</span> Phase 2 Add-Ons (Post Year 1)</h2>
+<table>
+  <tr><th>Add-On</th><th>Pricing</th></tr>
+  <tr><td>Premium phone/email support</td><td>₹3,000 / year</td></tr>
+  <tr><td>Custom compliance modules</td><td>₹10,000 one-time</td></tr>
+  <tr><td>Multi-organization management (franchise HQ)</td><td>Custom pricing</td></tr>
+  <tr><td>Cloud backup / sync module</td><td>₹5,000 / year</td></tr>
+  <tr><td>API access for ERP integration</td><td>₹8,000 / year</td></tr>
+</table>
+
+<div class="footer">
+  ComplyTrack — Confidential Pricing Document<br>
+  Generated July 2026 — For Internal Use Only
+</div>
+
+</body>
+</html>

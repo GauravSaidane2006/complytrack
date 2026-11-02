@@ -4,6 +4,7 @@ import PageHeader from '../components/common/PageHeader'
 import StatusBadge from '../components/common/StatusBadge'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import Modal from '../components/common/Modal'
+import Button from '../components/common/Button'
 import { toast } from 'react-hot-toast'
 
 export default function Users() {
@@ -65,55 +66,54 @@ export default function Users() {
         title="Users"
         description="Manage team members and their roles"
         actions={
-          <button onClick={() => { setEditingUser(null); resetForm(); setShowModal(true) }}
-            className="px-5 py-2.5 bg-gradient-to-r from-orange-600 to-orange-500 text-white rounded-xl text-sm font-medium hover:from-orange-700 hover:to-orange-600 shadow-md shadow-orange-500/20 transition-all duration-200">
+          <Button onClick={() => { setEditingUser(null); resetForm(); setShowModal(true) }}>
             + Add User
-          </button>
+          </Button>
         }
       />
 
-      <div className="bg-white rounded-2xl border border-stone-200/60 shadow-sm">
+      <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm">
         {users?.length === 0 ? (
-          <div className="text-center py-12 text-sm text-stone-500">No users found</div>
+          <div className="text-center py-12 text-sm text-slate-500">No users found</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-stone-50/80">
+              <thead className="bg-slate-50/80">
                 <tr>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider">Name</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider hidden sm:table-cell">Email</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider hidden md:table-cell">Role</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider hidden sm:table-cell">Status</th>
-                  <th className="text-right px-4 py-3 text-xs font-semibold text-stone-500 uppercase tracking-wider">Actions</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Name</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:table-cell">Email</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">Role</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:table-cell">Status</th>
+                  <th className="text-right px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-stone-100">
+              <tbody className="divide-y divide-slate-100">
                 {users?.map((user) => (
-                  <tr key={user._id} className="hover:bg-orange-50/30 transition-colors">
+                  <tr key={user._id} className="hover:bg-primary-50/30 transition-colors">
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 text-white flex items-center justify-center text-sm font-bold shadow-sm">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 text-white flex items-center justify-center text-sm font-bold shadow-sm">
                           {user.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <span className="text-sm font-medium text-stone-900">{user.name}</span>
-                          <p className="text-xs text-stone-500 sm:hidden">{user.email}</p>
+                          <span className="text-sm font-medium text-slate-900">{user.name}</span>
+                          <p className="text-xs text-slate-500 sm:hidden">{user.email}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3.5 text-sm text-stone-600 hidden sm:table-cell">{user.email}</td>
+                    <td className="px-4 py-3.5 text-sm text-slate-600 hidden sm:table-cell">{user.email}</td>
                     <td className="px-4 py-3.5 hidden md:table-cell"><StatusBadge status={user.role} type="priority" /></td>
                     <td className="px-4 py-3.5 hidden sm:table-cell"><StatusBadge status={user.isActive ? 'active' : 'inactive'} /></td>
                     <td className="px-4 py-3.5 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button onClick={() => handleEdit(user)}
-                          className="p-1 text-stone-400 hover:text-orange-600 transition-colors">
+                          className="p-1 text-slate-400 hover:text-primary-600 transition-colors">
                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
                         </button>
                         <button onClick={() => handleDelete(user._id)}
-                          className="p-1 text-stone-400 hover:text-rose-600 transition-colors">
+                          className="p-1 text-slate-400 hover:text-danger-500 transition-colors">
                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                           </svg>
@@ -133,27 +133,27 @@ export default function Users() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1.5">Name</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Name</label>
               <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1.5">Email</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
               <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all" />
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1.5">{editingUser ? 'New Password (leave blank to keep)' : 'Password'}</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">{editingUser ? 'New Password (leave blank to keep)' : 'Password'}</label>
               <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
-              {!editingUser && <p className="text-[10px] text-stone-400 mt-1">Min 8 chars: uppercase, lowercase, number, special char</p>}
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all" />
+              {!editingUser && <p className="text-[10px] text-slate-400 mt-1">Min 8 chars: uppercase, lowercase, number, special char</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1.5">Role</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Role</label>
               <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}
-                className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all">
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all">
                 <option value="user">User</option>
                 <option value="manager">Manager</option>
                 <option value="admin">Admin</option>
@@ -162,16 +162,17 @@ export default function Users() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <input type="text" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              placeholder="Phone" className="px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
+              placeholder="Phone" className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all" />
             <input type="text" value={form.designation} onChange={(e) => setForm({ ...form, designation: e.target.value })}
-              placeholder="Designation" className="px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all" />
+              placeholder="Designation" className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all" />
           </div>
           <div className="flex justify-end gap-3">
-            <button type="button" onClick={() => { setShowModal(false); setEditingUser(null); resetForm() }}
-              className="px-4 py-2 text-sm border border-stone-200 rounded-xl hover:bg-stone-50 transition-colors">Cancel</button>
-            <button type="submit" className="px-4 py-2 text-sm bg-gradient-to-r from-orange-600 to-orange-500 text-white rounded-xl shadow-md shadow-orange-500/20 transition-all duration-200">
+            <Button type="button" variant="secondary" onClick={() => { setShowModal(false); setEditingUser(null); resetForm() }}>
+              Cancel
+            </Button>
+            <Button type="submit">
               {editingUser ? 'Update' : 'Create'}
-            </button>
+            </Button>
           </div>
         </form>
       </Modal>

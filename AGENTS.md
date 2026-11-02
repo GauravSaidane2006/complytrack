@@ -8,6 +8,12 @@ Three packages in a monorepo:
 - **`client/`** — React 19 + Vite + Tailwind CSS v4 SPA. ES modules. Uses RTK Query for API calls.
 - **`cli/`** — Standalone Node scraper for Indian compliance laws. Separate from the app.
 
+**Main Server** lives at `../main-server` (sibling repo, "ComplyTrack Central Update & License Server"). The complytrack server talks to it via `MAIN_SERVER_URL` (default `http://localhost:5100`):
+
+- `POST /api/heartbeat` with `x-api-key` — sent every `MAIN_SERVER_HEARTBEAT_INTERVAL` by `server/src/services/mainServerMonitor.js`. Main server tracks `connectionStatus` per customer (online/offline) via its `src/services/connectionMonitor.js` sweep.
+- `GET /api/health` — polled every `MAIN_SERVER_CHECK_INTERVAL` by the same monitor.
+- `GET /api/main-server/status` (public) on the complytrack server exposes the monitor state; the client polls it and shows the "Main Server is Down" popup (`client/src/components/common/MainServerStatus.jsx`).
+
 All API routes live under `/api` and are registered in `server/src/routes/index.js`. The client proxies `/api` to `http://localhost:5001` via Vite config (but the server defaults to port 5000).
 
 ## Commands
@@ -41,6 +47,7 @@ The server Dockerfile uses `npm ci --omit=dev` — devDependencies are excluded.
 - `server/.env.docker` is used by docker-compose (MongoDB at `mongo:27017`).
 - `server/.env` and `uploads/*`, `reports/*` are gitignored.
 - `CLIENT_URL` must match the Vite dev server origin (default `http://localhost:5173`).
+- Main-server connection tunables on the complytrack server: `MAIN_SERVER_URL`, `COMPLYTRACK_API_KEY`, `MAIN_SERVER_CHECK_INTERVAL`, `MAIN_SERVER_HEARTBEAT_INTERVAL`, `MAIN_SERVER_REQUEST_TIMEOUT`. On the main server: `HEARTBEAT_INTERVAL_MS`, `HEARTBEAT_TIMEOUT_MS`, `CONNECTION_SWEEP_INTERVAL_MS`.
 
 ## Key Conventions
 

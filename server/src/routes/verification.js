@@ -38,6 +38,7 @@ router.post('/upload', authenticate, uploadLimiter, upload.single('document'), v
 router.get('/status', authenticate, apiLimiter, verificationController.getVerificationStatus);
 router.get('/status/:orgId', authenticate, apiLimiter, verificationController.getVerificationStatus);
 router.put('/review/:id', authenticate, authorize('admin', 'superadmin', 'developer'), apiLimiter, validate(reviewDocumentSchema), verificationController.reviewDocument);
+router.get('/all', authenticate, authorize('admin', 'superadmin', 'developer'), apiLimiter, verificationController.getAllVerifications);
 router.post('/dev-bypass', authenticate, apiLimiter, verificationController.devBypass);
 router.get('/help/:sector', authenticate, apiLimiter, verificationController.getSectorHelp);
 router.get('/help-content/:sector', authenticate, apiLimiter, verificationController.getHelpContent);

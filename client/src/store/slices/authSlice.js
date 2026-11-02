@@ -1,13 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
-  user: (() => {
-    try { return JSON.parse(sessionStorage.getItem('user')) } catch { return null }
-  })(),
+  user: null,
   accessToken: null,
-  organization: (() => {
-    try { return JSON.parse(sessionStorage.getItem('organization')) } catch { return null }
-  })(),
+  organization: null,
   isAuthenticated: false
 }
 

@@ -2,6 +2,7 @@ const Notice = require('../models/Notice');
 const { generateNoticePDF } = require('../utils/noticePdfGenerator');
 const path = require('path');
 const fs = require('fs');
+const { emitToOrg } = require('../utils/socketHelper');
 
 exports.getNotices = async (req, res, next) => {
   try {
@@ -141,6 +142,7 @@ exports.deleteNotice = async (req, res, next) => {
       if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
     }
 
+    emitToOrg(req.organizationId, 'notice:deleted', { _id: req.params.id });
     res.json({ message: 'Notice deleted.' });
   } catch (error) {
     next(error);

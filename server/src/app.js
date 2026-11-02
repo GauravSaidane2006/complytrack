@@ -13,18 +13,30 @@ const fs = require('fs');
 const connectDB = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
 const { sanitize, mongoSanitize } = require('./middleware/sanitize');
+const { licenseGate } = require('./middleware/licenseGate');
 const { globalLimiter, authLimiter, registerLimiter, uploadLimiter, apiLimiter, reportLimiter, dashboardLimiter } = require('./middleware/rateLimiters');
 const routes = require('./routes');
-const { startScheduledJobs } = require('./services/complianceService');
+const { startScheduledJobs, setSocketIO: setComplianceServiceSocket } = require('./services/complianceService');
+const { setSocketIO } = require('./utils/socketHelper');
 const { startNoticeJobs } = require('./services/noticeService');
 const { generateAllPdfsOnStartup } = require('./services/sectorPdfService');
+const mainServerMonitor = require('./services/mainServerMonitor');
 
 const app = express();
 const server = http.createServer(app);
 
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
+const allowedOrigins = [
+  process.env.CLIENT_URL || 'http://localhost:5173',
+  process.env.CLIENT_URL_NETWORK
+].filter(Boolean);
+
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: allowedOrigins,
     methods: ['GET', 'POST']
   }
 });
@@ -60,13 +72,35 @@ const sectorPdfsDir = path.join(__dirname, '../sector-pdfs');
 if (!fs.existsSync(sectorPdfsDir)) fs.mkdirSync(sectorPdfsDir, { recursive: true });
 
 app.use(helmet({
-  hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+  hsts: process.env.NODE_ENV === 'production' ? { maxAge: 31536000, includeSubDomains: true, preload: true } : false,
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
-  contentSecurityPolicy: false
+  contentSecurityPolicy: process.env.NODE_ENV === 'production' ? {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", 'data:', 'https:'],
+      fontSrc: ["'self'"],
+      connectSrc: ["'self'"],
+      frameSrc: ["'none'"],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
+      frameAncestors: ["'none'"]
+    }
+  } : false,
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: { policy: 'same-site' }
 }));
 
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -79,6 +113,7 @@ app.use(cookieParser());
 app.use(mongoSanitize);
 app.use(sanitize);
 app.use('/api', globalLimiter);
+app.use('/api', licenseGate);
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/register', registerLimiter);
 app.use('/api/verification/upload', uploadLimiter);
@@ -92,15 +127,39 @@ app.use('/notices', authenticate, express.static(path.join(__dirname, '../notice
 app.use('/sector-pdfs', authenticate, express.static(path.join(__dirname, '../sector-pdfs')));
 
 app.use('/api', routes);
+
+const clientDistPath = path.join(__dirname, '../../client/dist');
+if (process.env.NODE_ENV === 'production' && fs.existsSync(clientDistPath)) {
+  app.use(express.static(clientDistPath));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(clientDistPath, 'index.html'));
+  });
+}
+
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5173;
 
 connectDB().then(() => {
+  setSocketIO(io);
+  setComplianceServiceSocket(io);
   startScheduledJobs();
   startNoticeJobs();
-  generateAllPdfsOnStartup();
-  server.listen(PORT, () => {});
+  mainServerMonitor.start();
+  generateAllPdfsOnStartup().catch(err => console.error('PDF generation error:', err.message));
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`Port ${PORT} is already in use. Stop the other process or use a different PORT.`);
+      process.exit(1);
+    }
+    console.error('Server error:', err);
+  });
+  server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}).catch(err => {
+  console.error('Failed to start server:', err.message);
+  process.exit(1);
 });
 
 module.exports = { app, server, io };

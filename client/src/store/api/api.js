@@ -11,21 +11,47 @@ const baseQuery = fetchBaseQuery({
   }
 })
 
+let isRefreshing = false
+let failedQueue = []
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach(({ resolve, reject }) => {
+    if (error) reject(error)
+    else resolve(token)
+  })
+  failedQueue = []
+}
+
 const baseQueryWithReauth = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions)
 
-  if (result.error && result.error.status === 401) {
-    const refreshResult = await baseQuery({ url: '/auth/refresh-token', method: 'POST' }, api, { ...extraOptions, _retry: true })
+  if (result.error && result.error.status === 401 && !extraOptions?._skipReauth) {
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        failedQueue.push({ resolve, reject })
+      }).then(token => {
+        return baseQuery({ ...args, headers: { ...args.headers, authorization: `Bearer ${token}` } }, api, extraOptions)
+      })
+    }
+
+    isRefreshing = true
+
+    const refreshResult = await baseQuery({ url: '/auth/refresh-token', method: 'POST' }, api, { ...extraOptions, _skipReauth: true })
 
     if (refreshResult.data?.accessToken) {
       api.dispatch(setAccessToken(refreshResult.data.accessToken))
       if (refreshResult.data.user) {
         api.dispatch(setCredentials(refreshResult.data))
       }
+      processQueue(null, refreshResult.data.accessToken)
       result = await baseQuery(args, api, extraOptions)
     } else {
+      processQueue(new Error('Refresh failed'))
       api.dispatch(logout())
+      api.dispatch(api.util.resetApiState())
     }
+
+    isRefreshing = false
   }
 
   return result
@@ -36,7 +62,7 @@ export const api = createApi({
   baseQuery: baseQueryWithReauth,
   tagTypes: [
     'Compliance', 'ComplianceStats', 'User', 'Template',
-    'Report', 'Alert', 'Dashboard', 'Risk', 'Contract', 'Organization', 'Notice', 'Questionnaire', 'SectorPdf', 'Developer'
+    'Report', 'Alert', 'Dashboard', 'Risk', 'Contract', 'Organization', 'Notice', 'Questionnaire', 'SectorPdf', 'Developer', 'Comment', 'License', 'Update', 'MainServer', 'Trial'
   ],
   endpoints: (builder) => ({
     login: builder.mutation({
@@ -57,7 +83,8 @@ export const api = createApi({
       query: (data) => ({ url: '/auth/change-password', method: 'POST', body: data })
     }),
     logout: builder.mutation({
-      query: () => ({ url: '/auth/logout', method: 'POST' })
+      query: () => ({ url: '/auth/logout', method: 'POST' }),
+      extraOptions: { _skipReauth: true }
     }),
 
     getComplianceItems: builder.query({
@@ -91,6 +118,32 @@ export const api = createApi({
     bulkCreateFromTemplate: builder.mutation({
       query: (data) => ({ url: '/compliance/bulk-from-template', method: 'POST', body: data }),
       invalidatesTags: ['Compliance', 'ComplianceStats']
+    }),
+
+    assignComplianceUsers: builder.mutation({
+      query: ({ id, assignedTo }) => ({ url: `/compliance/${id}/assign`, method: 'PATCH', body: { assignedTo } }),
+      invalidatesTags: (result, error, { id }) => ['Compliance', { type: 'Compliance', id }]
+    }),
+    bulkAssignCompliance: builder.mutation({
+      query: ({ complianceIds, assignedTo }) => ({ url: '/compliance/bulk-assign', method: 'POST', body: { complianceIds, assignedTo } }),
+      invalidatesTags: ['Compliance', 'ComplianceStats']
+    }),
+    uploadComplianceProof: builder.mutation({
+      query: ({ id, formData }) => ({ url: `/compliance/${id}/proof`, method: 'POST', body: formData, formData: true }),
+      invalidatesTags: (result, error, { id }) => ['Compliance', { type: 'Compliance', id }]
+    }),
+
+    getComments: builder.query({
+      query: (complianceId) => `/compliance-comments/${complianceId}`,
+      providesTags: ['Comment']
+    }),
+    addComment: builder.mutation({
+      query: ({ complianceId, text }) => ({ url: `/compliance-comments/${complianceId}`, method: 'POST', body: { text } }),
+      invalidatesTags: ['Comment']
+    }),
+    deleteComment: builder.mutation({
+      query: (id) => ({ url: `/compliance-comments/${id}`, method: 'DELETE' }),
+      invalidatesTags: ['Comment']
     }),
 
     getTemplates: builder.query({
@@ -153,6 +206,10 @@ export const api = createApi({
     }),
     generateDeadlineAlerts: builder.mutation({
       query: () => ({ url: '/alerts/generate-deadline-alerts', method: 'POST' }),
+      invalidatesTags: ['Alert']
+    }),
+    deleteAlert: builder.mutation({
+      query: (id) => ({ url: `/alerts/${id}`, method: 'DELETE' }),
       invalidatesTags: ['Alert']
     }),
 
@@ -370,6 +427,69 @@ export const api = createApi({
     getDeveloperAlerts: builder.query({
       query: (params) => ({ url: '/developer/alerts', params }),
       providesTags: ['Developer']
+    }),
+    getDeveloperPendingVerifications: builder.query({
+      query: (params) => ({ url: '/verification/all', params }),
+      providesTags: ['Developer']
+    }),
+
+    getLicenseStatus: builder.query({
+      query: () => '/license/status',
+      providesTags: ['License']
+    }),
+    activateLicense: builder.mutation({
+      query: (data) => ({ url: '/license/activate', method: 'POST', body: data }),
+      invalidatesTags: ['License']
+    }),
+    validateLicenseKey: builder.mutation({
+      query: (data) => ({ url: '/license/validate', method: 'POST', body: data })
+    }),
+    getAllLicenses: builder.query({
+      query: () => '/license/all',
+      providesTags: ['License']
+    }),
+    revokeLicense: builder.mutation({
+      query: ({ id, reason }) => ({ url: `/license/${id}/revoke`, method: 'POST', body: { reason } }),
+      invalidatesTags: ['License']
+    }),
+
+    // Update endpoints (main server)
+    getUpdateStatus: builder.query({
+      query: () => '/updates/status',
+      providesTags: ['Update']
+    }),
+    checkForUpdates: builder.mutation({
+      query: (data) => ({ url: '/updates/check', method: 'POST', body: data }),
+      invalidatesTags: ['Update']
+    }),
+    applyUpdate: builder.mutation({
+      query: (data) => ({ url: '/updates/apply', method: 'POST', body: data }),
+      invalidatesTags: ['Update']
+    }),
+    getUpdateChangelog: builder.query({
+      query: (params) => ({ url: '/updates/changelog', params }),
+      providesTags: ['Update']
+    }),
+
+    // Main server connection monitoring
+    getMainServerStatus: builder.query({
+      query: () => '/main-server/status',
+      providesTags: ['MainServer']
+    }),
+    refreshMainServerStatus: builder.mutation({
+      query: () => ({ url: '/main-server/refresh', method: 'POST' }),
+      invalidatesTags: ['MainServer']
+    }),
+
+    // Trial status
+    getTrialStatus: builder.query({
+      query: () => '/trial/status',
+      providesTags: ['Trial']
+    }),
+
+    // Chatbot
+    sendChatMessage: builder.mutation({
+      query: (message) => ({ url: '/chatbot', method: 'POST', body: { message } })
     })
   })
 })
@@ -391,6 +511,14 @@ export const {
   useGetComplianceStatsQuery,
   useBulkCreateFromTemplateMutation,
 
+  useAssignComplianceUsersMutation,
+  useBulkAssignComplianceMutation,
+  useUploadComplianceProofMutation,
+
+  useGetCommentsQuery,
+  useAddCommentMutation,
+  useDeleteCommentMutation,
+
   useGetTemplatesQuery,
   useGetTemplateQuery,
   useCreateTemplateMutation,
@@ -408,6 +536,7 @@ export const {
   useMarkAlertReadMutation,
   useMarkAllAlertsReadMutation,
   useGenerateDeadlineAlertsMutation,
+  useDeleteAlertMutation,
 
   useGetDashboardSummaryQuery,
   useGetComplianceHealthQuery,
@@ -465,8 +594,27 @@ export const {
   useGetDeveloperOrganizationDetailsQuery,
   useGetDeveloperComplianceQuery,
   useGetDeveloperAlertsQuery,
+  useGetDeveloperPendingVerificationsQuery,
 
   useGetOnboardingRequirementsQuery,
   useGetOnboardingHelpQuery,
-  useGetDocumentDetailQuery
+  useGetDocumentDetailQuery,
+
+  useGetLicenseStatusQuery,
+  useActivateLicenseMutation,
+  useValidateLicenseKeyMutation,
+  useGetAllLicensesQuery,
+  useRevokeLicenseMutation,
+
+  useGetUpdateStatusQuery,
+  useCheckForUpdatesMutation,
+  useApplyUpdateMutation,
+  useGetUpdateChangelogQuery,
+
+  useGetMainServerStatusQuery,
+  useRefreshMainServerStatusMutation,
+
+  useGetTrialStatusQuery,
+
+  useSendChatMessageMutation
 } = api

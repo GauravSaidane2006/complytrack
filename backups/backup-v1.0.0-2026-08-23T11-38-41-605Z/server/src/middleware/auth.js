@@ -1,0 +1,62 @@
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+
+const authenticate = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Access denied. No token provided.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findById(decoded.id).select('-password');
+    if (!user || !user.isActive) {
+      return res.status(401).json({ message: 'Invalid token or user inactive.' });
+    }
+
+    req.user = user;
+    req.organizationId = user.organization;
+    next();
+  } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Token expired.', code: 'TOKEN_EXPIRED' });
+    }
+    return res.status(401).json({ message: 'Invalid token.' });
+  }
+};
+
+const authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ message: 'Insufficient permissions.' });
+    }
+    next();
+  };
+};
+
+const checkOrganization = async (req, res, next) => {
+  if (req.user.role === 'superadmin' || req.user.role === 'developer') return next();
+  const targetOrg = req.params.organizationId || req.body.organization || req.query.organization;
+  if (targetOrg && targetOrg !== req.organizationId.toString()) {
+    return res.status(403).json({ message: 'Access denied to this organization.' });
+  }
+  next();
+};
+
+const isDeveloper = (req, res, next) => {
+  if (req.user.role !== 'developer' && req.user.role !== 'superadmin') {
+    return res.status(403).json({ message: 'Developer access required.' });
+  }
+  next();
+};
+
+const isCompanyAdmin = (req, res, next) => {
+  if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+    return res.status(403).json({ message: 'Company admin access required.' });
+  }
+  next();
+};
+
+module.exports = { authenticate, authorize, checkOrganization, isDeveloper, isCompanyAdmin };

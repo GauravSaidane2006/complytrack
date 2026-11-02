@@ -14,23 +14,16 @@ function ensureDir(dir) {
 exports.listPdfs = async (req, res) => {
   try {
     const user = req.user;
-    const isDevUser = user.role === 'developer' || user.role === 'superadmin';
     const isAdmin = user.role === 'admin' || user.role === 'superadmin' || user.role === 'developer';
 
-    const filter = { isActive: true, pdfType: 'full_reference' };
     if (!isAdmin) {
-      const org = await Organization.findById(user.organization).select('sector industry');
-      if (org) {
-        filter.$or = [
-          { sector: org.sector, industry: org.industry },
-          { sector: org.sector, industry: 'all' },
-          { sector: 'all', industry: 'all' }
-        ];
-      }
+      return res.json({ pdfs: [], isAdmin: false });
     }
 
+    const filter = { isActive: true, pdfType: 'full_reference' };
+
     const pdfs = await SectorPdf.find(filter).sort({ sector: 1, industry: 1 });
-    res.json({ pdfs, isAdmin: isDevUser || isAdmin });
+    res.json({ pdfs, isAdmin });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

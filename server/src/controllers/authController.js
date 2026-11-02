@@ -56,16 +56,17 @@ const validatePassword = (password) => {
 
 const generateCompanyId = () => {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const randomBytes = crypto.randomBytes(8);
   let id = 'CT-';
   for (let i = 0; i < 8; i++) {
-    id += chars.charAt(Math.floor(Math.random() * chars.length));
+    id += chars.charAt(randomBytes[i] % chars.length);
   }
   return id;
 };
 
 exports.register = async (req, res, next) => {
   try {
-    const { name, email, password, organizationName, phone, industry, sector, employeeCount, companyType } = req.body;
+    const { name, email, password, organizationName, phone, industry, sector, employeeCount, companyType, licenseKey, pan, registrationPath } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -77,27 +78,72 @@ exports.register = async (req, res, next) => {
       return res.status(400).json({ message: passwordError });
     }
 
+    const isTrial = registrationPath === 'trial';
+    let normalizedPan;
+
+    if (!isTrial) {
+      if (!licenseKey) {
+        return res.status(400).json({ message: 'License key is required to register.' });
+      }
+      if (!pan) {
+        return res.status(400).json({ message: 'PAN is required to register.' });
+      }
+
+      normalizedPan = pan.replace(/[\s-]/g, '').toUpperCase();
+      if (!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(normalizedPan)) {
+        return res.status(400).json({ message: 'Invalid PAN format. Expected: AAAAA9999A (e.g., ABCDE1234F)' });
+      }
+
+      const { validateLicenseWithMainServer } = require('../services/licenseService');
+      const mainServerResult = await validateLicenseWithMainServer(licenseKey, normalizedPan);
+
+      if (!mainServerResult.success) {
+        return res.status(400).json({
+          message: mainServerResult.message || 'License validation failed. Please check your license key and PAN.',
+          code: 'LICENSE_VALIDATION_FAILED'
+        });
+      }
+    }
+
     const isDev = email.endsWith('@complytrack.dev') || email === 'admin@complytrack.dev';
     const isDeveloperEmail = email.endsWith('@complytrack.dev');
 
     let companyId;
     let unique = false;
-    while (!unique) {
+    let attempts = 0;
+    while (!unique && attempts < 100) {
       companyId = generateCompanyId();
       const existing = await Organization.findOne({ companyId });
       if (!existing) unique = true;
+      attempts++;
+    }
+    if (!unique) {
+      return res.status(500).json({ message: 'Unable to generate unique company ID. Please try again.' });
     }
 
-    const organization = await Organization.create({
+    const orgData = {
       companyId,
       name: organizationName || `${name}'s Organization`,
       industry,
       sector,
       companyType,
       employeeCount,
-      verificationStatus: isDev ? 'verified' : 'documents_required',
+      verificationStatus: isDev ? 'verified' : (isTrial ? 'pending' : 'documents_required'),
       verifiedAt: isDev ? new Date() : undefined
-    });
+    };
+
+    if (isTrial) {
+      orgData.subscription = {
+        plan: 'trial',
+        startDate: new Date(),
+        endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        trialStartedAt: new Date()
+      };
+    } else {
+      orgData.pan = normalizedPan;
+    }
+
+    const organization = await Organization.create(orgData);
 
     const userRole = isDeveloperEmail ? 'developer' : 'admin';
 
@@ -112,6 +158,17 @@ exports.register = async (req, res, next) => {
     organization.createdBy = user._id;
     await organization.save();
 
+    let licenseResult = null;
+    if (!isTrial) {
+      const { activateLicense } = require('../services/licenseService');
+      licenseResult = await activateLicense(organization._id, licenseKey, user._id);
+    }
+
+    const { sendRegistrationConfirmationEmail } = require('../utils/emailService');
+    sendRegistrationConfirmationEmail(user, organization, { isTrial }).catch(err =>
+      console.error('Registration confirmation email error:', err.message)
+    );
+
     const accessToken = generateAccessToken(user._id, organization._id);
     const refreshToken = generateRefreshToken();
     const hashedRefreshToken = hashToken(refreshToken);
@@ -125,7 +182,9 @@ exports.register = async (req, res, next) => {
       accessToken,
       user: sanitizeUser(user),
       organization,
-      requiresVerification: !isDev
+      license: licenseResult?.success ? licenseResult.license : null,
+      trial: isTrial ? { plan: 'trial', endDate: organization.subscription.endDate, daysRemaining: 7 } : null,
+      requiresVerification: !isDev && !isTrial
     });
   } catch (error) {
     next(error);
@@ -161,7 +220,7 @@ exports.login = async (req, res, next) => {
     }
 
     user.loginAttempts = 0;
-    user.lockUntil = undefined;
+    user.lockUntil = null;
 
     const accessToken = generateAccessToken(user._id, user.organization._id);
     const refreshToken = generateRefreshToken();
@@ -172,6 +231,9 @@ exports.login = async (req, res, next) => {
     await user.save();
 
     setRefreshCookie(res, refreshToken);
+
+    const { sendLoginDigest } = require('../services/complianceService');
+    sendLoginDigest(user._id).catch(err => console.error('Login digest error:', err.message));
 
     res.json({
       accessToken,
@@ -223,8 +285,6 @@ exports.logout = async (req, res, next) => {
     if (token) {
       const hashedToken = hashToken(token);
       await User.findOneAndUpdate({ refreshToken: hashedToken }, { $set: { refreshToken: null } });
-    } else if (req.user?._id) {
-      await User.findByIdAndUpdate(req.user._id, { $set: { refreshToken: null } });
     }
     clearRefreshCookie(res);
     res.json({ message: 'Logged out successfully.' });

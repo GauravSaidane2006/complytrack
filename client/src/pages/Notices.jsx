@@ -58,12 +58,12 @@ export default function Notices() {
 
   const getTypeBadge = (type) => {
     const colors = {
-      compliance_change: 'bg-blue-100 text-blue-800 border-blue-200',
+      compliance_change: 'bg-primary-100 text-primary-700 border-primary-200',
       status_change: 'bg-purple-100 text-purple-800 border-purple-200',
-      deadline_warning: 'bg-amber-100 text-amber-800 border-amber-200',
+      deadline_warning: 'bg-warning-100 text-warning-700 border-warning-200',
       overdue_alert: 'bg-red-100 text-red-800 border-red-200',
       summary: 'bg-green-100 text-green-800 border-green-200',
-      general: 'bg-stone-100 text-stone-800 border-stone-200'
+      general: 'bg-slate-100 text-slate-800 border-slate-200'
     }
     return colors[type] || colors.general
   }
@@ -83,7 +83,7 @@ export default function Notices() {
   const getPriorityBadge = (priority) => {
     const colors = {
       high: 'bg-red-100 text-red-800 border-red-200',
-      medium: 'bg-amber-100 text-amber-800 border-amber-200',
+      medium: 'bg-warning-100 text-warning-700 border-warning-200',
       low: 'bg-green-100 text-green-800 border-green-200'
     }
     return colors[priority] || colors.low
@@ -93,18 +93,18 @@ export default function Notices() {
   const getDownloadUrl = (id) => `/api/notices/${id}/download`
 
   return (
-    <div className="min-h-screen bg-stone-50 p-6">
+    <div className="min-h-screen bg-slate-50 p-6">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-5xl font-bold text-stone-900 mb-2">Notices & Alerts</h1>
-          <p className="text-xl text-stone-600">View compliance changes, deadline warnings, and system alerts</p>
+          <h1 className="text-5xl font-bold text-slate-900 mb-2">Notices & Alerts</h1>
+          <p className="text-xl text-slate-600">View compliance changes, deadline warnings, and system alerts</p>
         </div>
 
         {unreadCount > 0 && (
-          <div className="mb-6 flex items-center justify-between bg-amber-50 border border-amber-200 rounded-2xl p-5">
+          <div className="mb-6 flex items-center justify-between bg-warning-50 border border-warning-200 rounded-2xl p-5">
             <div className="flex items-center gap-3">
-              <div className="w-3 h-3 bg-amber-500 rounded-full animate-pulse" />
-              <span className="text-lg font-semibold text-amber-800">
+              <div className="w-3 h-3 bg-warning-500 rounded-full animate-pulse" />
+              <span className="text-lg font-semibold text-warning-700">
                 You have {unreadCount} unread notice{unreadCount !== 1 ? 's' : ''}
               </span>
             </div>
@@ -121,7 +121,7 @@ export default function Notices() {
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="px-5 py-3 border border-stone-200 rounded-xl text-base focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all bg-white"
+            className="px-5 py-3 border border-slate-200 rounded-xl text-base focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all bg-white"
           >
             <option value="">All Types</option>
             <option value="compliance_change">Compliance Change</option>
@@ -134,7 +134,7 @@ export default function Notices() {
           <select
             value={readFilter}
             onChange={(e) => setReadFilter(e.target.value)}
-            className="px-5 py-3 border border-stone-200 rounded-xl text-base focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all bg-white"
+            className="px-5 py-3 border border-slate-200 rounded-xl text-base focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all bg-white"
           >
             <option value="">All</option>
             <option value="unread">Unread Only</option>
@@ -143,10 +143,10 @@ export default function Notices() {
         </div>
 
         {notices.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-stone-200/60 shadow-sm p-16 text-center">
-            <div className="text-6xl mb-4 text-stone-300">📭</div>
-            <p className="text-2xl font-semibold text-stone-500">No notices found</p>
-            <p className="text-lg text-stone-400 mt-2">Notices will appear here when compliance items change or deadlines approach</p>
+          <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-16 text-center">
+            <div className="text-6xl mb-4 text-slate-300">📭</div>
+            <p className="text-2xl font-semibold text-slate-500">No notices found</p>
+            <p className="text-lg text-slate-400 mt-2">Notices will appear here when compliance items change or deadlines approach</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -155,12 +155,12 @@ export default function Notices() {
                 key={notice._id}
                 className={`bg-white rounded-2xl border shadow-sm overflow-hidden transition-all duration-200 ${
                   notice.isRead
-                    ? 'border-stone-200/60'
+                    ? 'border-slate-200/60'
                     : 'border-amber-300 shadow-amber-100'
                 }`}
               >
                 <div
-                  className="p-6 cursor-pointer hover:bg-stone-50 transition-all"
+                  className="p-6 cursor-pointer hover:bg-slate-50 transition-all"
                   onClick={() => {
                     setExpandedId(expandedId === notice._id ? null : notice._id)
                     if (!notice.isRead) handleMarkRead(notice._id)
@@ -170,7 +170,7 @@ export default function Notices() {
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-2">
                         {!notice.isRead && (
-                          <div className="w-2.5 h-2.5 bg-amber-500 rounded-full flex-shrink-0" />
+                          <div className="w-2.5 h-2.5 bg-warning-500 rounded-full flex-shrink-0" />
                         )}
                         <span className={`px-3 py-1 rounded-lg text-sm font-semibold border ${getTypeBadge(notice.type)}`}>
                           {getTypeLabel(notice.type)}
@@ -181,16 +181,16 @@ export default function Notices() {
                           </span>
                         )}
                       </div>
-                      <h3 className={`text-xl font-bold text-stone-900 ${notice.isRead ? '' : 'text-stone-900'}`}>
+                      <h3 className={`text-xl font-bold text-slate-900 ${notice.isRead ? '' : 'text-slate-900'}`}>
                         {notice.title}
                       </h3>
-                      <p className="text-base text-stone-500 mt-1">{notice.message}</p>
+                      <p className="text-base text-slate-500 mt-1">{notice.message}</p>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <p className="text-sm text-stone-400">
+                      <p className="text-sm text-slate-400">
                         {format(new Date(notice.createdAt), 'MMM d, yyyy')}
                       </p>
-                      <p className="text-sm text-stone-400">
+                      <p className="text-sm text-slate-400">
                         {format(new Date(notice.createdAt), 'h:mm a')}
                       </p>
                     </div>
@@ -198,20 +198,20 @@ export default function Notices() {
                 </div>
 
                 {expandedId === notice._id && (
-                  <div className="border-t border-stone-100 p-6 bg-stone-50">
+                  <div className="border-t border-slate-100 p-6 bg-slate-50">
                     <div className="mb-4">
-                      <h4 className="text-lg font-bold text-stone-700 mb-2">Details</h4>
-                      <p className="text-base text-stone-600">{notice.message}</p>
+                      <h4 className="text-lg font-bold text-slate-700 mb-2">Details</h4>
+                      <p className="text-base text-slate-600">{notice.message}</p>
                       {notice.changes && notice.changes.length > 0 && (
                         <div className="mt-4">
-                          <h5 className="text-base font-bold text-stone-700 mb-2">Changes</h5>
+                          <h5 className="text-base font-bold text-slate-700 mb-2">Changes</h5>
                           <div className="space-y-2">
                             {notice.changes.map((change, idx) => (
-                              <div key={idx} className="bg-white rounded-xl p-4 border border-stone-200">
-                                <span className="text-sm font-semibold text-stone-500">{change.field}</span>
+                              <div key={idx} className="bg-white rounded-xl p-4 border border-slate-200">
+                                <span className="text-sm font-semibold text-slate-500">{change.field}</span>
                                 <div className="flex items-center gap-2 mt-1">
                                   <span className="text-sm text-red-600 line-through">{change.oldValue}</span>
-                                  <span className="text-stone-400">→</span>
+                                  <span className="text-slate-400">→</span>
                                   <span className="text-sm text-green-600 font-semibold">{change.newValue}</span>
                                 </div>
                               </div>
@@ -257,12 +257,12 @@ export default function Notices() {
         {deleteId && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
-              <h3 className="text-2xl font-bold text-stone-900 mb-4">Delete Notice</h3>
-              <p className="text-lg text-stone-600 mb-6">Are you sure you want to delete this notice? This action cannot be undone.</p>
+              <h3 className="text-2xl font-bold text-slate-900 mb-4">Delete Notice</h3>
+              <p className="text-lg text-slate-600 mb-6">Are you sure you want to delete this notice? This action cannot be undone.</p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setDeleteId(null)}
-                  className="flex-1 px-5 py-3 border border-stone-200 rounded-xl text-base font-semibold hover:bg-stone-50 transition-all"
+                  className="flex-1 px-5 py-3 border border-slate-200 rounded-xl text-base font-semibold hover:bg-slate-50 transition-all"
                 >
                   Cancel
                 </button>

@@ -4,10 +4,10 @@ export default function ContactSupport() {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-900 via-stone-800 to-orange-950 flex items-center justify-center p-4">
+    <div className="min-h-screen canvas-gradient flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 border border-stone-200/60">
-          <h1 className="text-2xl font-bold text-stone-900 mb-6 text-center">Contact Support</h1>
+        <div className="bg-white rounded-2xl shadow-2xl p-8 border border-slate-200/60">
+          <h1 className="text-2xl font-bold text-slate-900 mb-6 text-center">Contact Support</h1>
 
           <div className="space-y-4">
             <a
@@ -22,34 +22,34 @@ export default function ContactSupport() {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-stone-900">Chat on WhatsApp</h3>
-                <p className="text-sm text-stone-500">+91 74994 7550</p>
+                <h3 className="font-semibold text-slate-900">Chat on WhatsApp</h3>
+                <p className="text-sm text-slate-500">+91 74994 7550</p>
               </div>
             </a>
 
-            <div className="flex items-center gap-4 p-4 border-2 border-stone-200 rounded-xl">
-              <div className="w-12 h-12 bg-orange-100 text-orange-600 rounded-xl flex items-center justify-center flex-shrink-0">
+            <div className="flex items-center gap-4 p-4 border-2 border-slate-200 rounded-xl">
+              <div className="w-12 h-12 bg-primary-100 text-primary-500 rounded-xl flex items-center justify-center flex-shrink-0">
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-stone-900">Email Support</h3>
-                <p className="text-sm text-stone-500">support@complytrack.in</p>
+                <h3 className="font-semibold text-slate-900">Email Support</h3>
+                <p className="text-sm text-slate-500">support@complytrack.in</p>
               </div>
             </div>
 
-            <div className="p-4 bg-stone-50 rounded-xl">
-              <h4 className="font-medium text-stone-900 mb-2">Support Hours</h4>
-              <p className="text-sm text-stone-600">Monday - Friday: 9:00 AM - 6:00 PM IST</p>
-              <p className="text-sm text-stone-600">Saturday: 10:00 AM - 2:00 PM IST</p>
+            <div className="p-4 bg-slate-50 rounded-xl">
+              <h4 className="font-medium text-slate-900 mb-2">Support Hours</h4>
+              <p className="text-sm text-slate-600">Monday - Friday: 9:00 AM - 6:00 PM IST</p>
+              <p className="text-sm text-slate-600">Saturday: 10:00 AM - 2:00 PM IST</p>
             </div>
           </div>
 
           <div className="mt-6 text-center">
             <button
               onClick={() => navigate(-1)}
-              className="px-8 py-3 border-2 border-stone-300 text-stone-700 rounded-xl font-bold hover:bg-stone-50 transition-colors"
+              className="px-8 py-3 border-2 border-slate-300 text-slate-700 rounded-xl font-bold hover:bg-slate-50 transition-colors"
             >
               ← Back
             </button>

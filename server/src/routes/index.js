@@ -18,6 +18,13 @@ router.use('/questionnaire', require('./questionnaire'));
 router.use('/sector-pdfs', require('./sectorPdfs'));
 router.use('/developer', require('./developer'));
 router.use('/onboarding', require('./onboarding'));
+router.use('/compliance-comments', require('./comments'));
+router.use('/files', require('./files'));
+router.use('/license', require('./license'));
+router.use('/trial', require('./trial'));
+router.use('/updates', require('./updates'));
+router.use('/main-server', require('./mainServer'));
+router.use('/chatbot', require('./chatbot'));
 
 router.get('/health', (req, res) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });

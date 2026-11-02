@@ -72,35 +72,35 @@ export default function Questionnaire() {
   const allAnswered = questions.every((q) => !q.required || answers[q.id])
 
   return (
-    <div className="min-h-screen bg-stone-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div className="w-full max-w-3xl">
         <div className="text-center mb-8">
-          <h1 className="text-5xl font-bold text-stone-900 mb-3">Compliance Profile Setup</h1>
-          <p className="text-xl text-stone-600">
+          <h1 className="text-5xl font-bold text-slate-900 mb-3">Compliance Profile Setup</h1>
+          <p className="text-xl text-slate-600">
             Answer these questions so we can provide the most relevant compliance requirements for your business.
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl border border-stone-200/60 shadow-sm overflow-hidden">
-          <div className="bg-stone-100 px-6 py-3 flex items-center justify-between">
-            <span className="text-sm font-semibold text-stone-600">
+        <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden">
+          <div className="bg-slate-100 px-6 py-3 flex items-center justify-between">
+            <span className="text-sm font-semibold text-slate-600">
               Question {currentStep + 1} of {totalSteps}
             </span>
-            <span className="text-sm font-semibold text-stone-600">
+            <span className="text-sm font-semibold text-slate-600">
               {Math.round(progress)}% Complete
             </span>
           </div>
 
-          <div className="h-2 bg-stone-200">
+          <div className="h-2 bg-slate-200">
             <div
-              className="h-full bg-gradient-to-r from-orange-500 to-amber-500 transition-all duration-500"
+              className="h-full bg-gradient-to-r from-primary-400 to-primary-600 transition-all duration-500"
               style={{ width: `${progress}%` }}
             />
           </div>
 
           <div className="p-8">
             <div className="mb-2">
-              <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-lg text-sm font-semibold">
+              <span className="px-3 py-1 bg-primary-100 text-primary-600 rounded-lg text-sm font-semibold">
                 {question.id === 'turnover' || question.id === 'employees' || question.id === 'companyType' || question.id === 'hasPhysicalOffice' || question.id === 'importsExports'
                   ? 'General Information'
                   : data?.sector === 'service'
@@ -112,7 +112,7 @@ export default function Questionnaire() {
               </span>
             </div>
 
-            <h2 className="text-2xl font-bold text-stone-900 mt-4 mb-6">
+            <h2 className="text-2xl font-bold text-slate-900 mt-4 mb-6">
               {question.question}
             </h2>
 
@@ -123,22 +123,22 @@ export default function Questionnaire() {
                   onClick={() => handleAnswer(question.id, option.value)}
                   className={`w-full text-left p-5 rounded-xl border-2 transition-all duration-200 ${
                     answers[question.id] === option.value
-                      ? 'border-orange-500 bg-orange-50 shadow-md shadow-orange-100'
-                      : 'border-stone-200 hover:border-stone-300 hover:bg-stone-50'
+                      ? 'border-primary-500 bg-primary-50 shadow-md shadow-primary-100'
+                      : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                       answers[question.id] === option.value
-                        ? 'border-orange-500 bg-orange-500'
-                        : 'border-stone-300'
+                        ? 'border-primary-500 bg-primary-500'
+                        : 'border-slate-300'
                     }`}>
                       {answers[question.id] === option.value && (
                         <div className="w-2 h-2 bg-white rounded-full" />
                       )}
                     </div>
                     <span className={`text-lg font-medium ${
-                      answers[question.id] === option.value ? 'text-orange-700' : 'text-stone-700'
+                      answers[question.id] === option.value ? 'text-primary-600' : 'text-slate-700'
                     }`}>
                       {option.label}
                     </span>
@@ -152,7 +152,7 @@ export default function Questionnaire() {
             <button
               onClick={handlePrev}
               disabled={currentStep === 0}
-              className="px-6 py-3 border border-stone-200 rounded-xl text-base font-semibold hover:bg-stone-50 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-6 py-3 border border-slate-200 rounded-xl text-base font-semibold hover:bg-slate-50 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Previous
             </button>
@@ -161,14 +161,14 @@ export default function Questionnaire() {
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting || !allAnswered}
-                className="px-8 py-3 bg-gradient-to-r from-orange-600 to-orange-500 text-white rounded-xl text-base font-semibold hover:from-orange-700 hover:to-orange-600 shadow-md shadow-orange-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-8 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl text-base font-semibold hover:from-primary-600 hover:to-primary-700 shadow-md shadow-primary/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? 'Saving...' : 'Complete Setup'}
               </button>
             ) : (
               <button
                 onClick={handleNext}
-                className="px-8 py-3 bg-gradient-to-r from-orange-600 to-orange-500 text-white rounded-xl text-base font-semibold hover:from-orange-700 hover:to-orange-600 shadow-md shadow-orange-500/20 transition-all"
+                className="px-8 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl text-base font-semibold hover:from-primary-600 hover:to-primary-700 shadow-md shadow-primary/20 transition-all"
               >
                 Next
               </button>
@@ -183,10 +183,10 @@ export default function Questionnaire() {
               onClick={() => setCurrentStep(i)}
               className={`w-3 h-3 rounded-full transition-all ${
                 i === currentStep
-                  ? 'bg-orange-500 scale-125'
+                  ? 'bg-primary-500 scale-125'
                   : answers[questions[i]?.id]
-                    ? 'bg-orange-300'
-                    : 'bg-stone-300'
+                    ? 'bg-primary-300'
+                    : 'bg-slate-300'
               }`}
             />
           ))}

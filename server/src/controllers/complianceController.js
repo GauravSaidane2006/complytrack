@@ -1,15 +1,26 @@
 const Compliance = require('../models/Compliance');
 const Template = require('../models/Template');
 const { escapeRegex } = require('../utils/security');
+const { emitToOrg } = require('../utils/socketHelper');
 
 exports.getComplianceItems = async (req, res, next) => {
   try {
     const isDevUser = req.user.role === 'developer' || req.user.role === 'superadmin';
+    const isManager = req.user.role === 'manager';
+    const isAdmin = req.user.role === 'admin';
+    const isUser = req.user.role === 'user';
+
     const filter = isDevUser ? {} : { organization: req.organizationId };
+
+    if (isUser) {
+      filter.assignedTo = req.user._id;
+    }
+
     if (req.query.status) filter.status = { $in: req.query.status.split(',') };
     if (req.query.law) filter.law = { $in: req.query.law.split(',') };
     if (req.query.priority) filter.priority = { $in: req.query.priority.split(',') };
-    if (req.query.assignedTo) filter.assignedTo = { $in: req.query.assignedTo.split(',') };
+    if (req.query.frequency) filter.frequency = { $in: req.query.frequency.split(',') };
+    if (req.query.assignedTo && !isUser) filter.assignedTo = { $in: req.query.assignedTo.split(',') };
     if (req.query.organization && isDevUser) filter.organization = req.query.organization;
     if (req.query.search) {
       const sanitizedSearch = escapeRegex(req.query.search);
@@ -42,7 +53,8 @@ exports.getComplianceItems = async (req, res, next) => {
 
     res.json({
       items,
-      pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+      userRole: req.user.role
     });
   } catch (error) {
     next(error);
@@ -82,6 +94,7 @@ exports.createComplianceItem = async (req, res, next) => {
     }
 
     const item = await Compliance.create(data);
+    emitToOrg(req.organizationId, 'compliance:created', { _id: item._id, title: item.title });
     res.status(201).json(item);
   } catch (error) {
     next(error);
@@ -90,14 +103,46 @@ exports.createComplianceItem = async (req, res, next) => {
 
 exports.updateComplianceItem = async (req, res, next) => {
   try {
-    const item = await Compliance.findOneAndUpdate(
+    const isDevUser = req.user.role === 'developer' || req.user.role === 'superadmin';
+    const isAdmin = req.user.role === 'admin';
+    const isManager = req.user.role === 'manager';
+    const isUser = req.user.role === 'user';
+
+    const item = await Compliance.findOne({
+      _id: req.params.id,
+      organization: req.organizationId
+    });
+
+    if (!item) return res.status(404).json({ message: 'Compliance item not found.' });
+
+    // Ownership check: regular users can only update items assigned to them.
+    // Managers can work on any task in the organization (but cannot delete).
+    if (isUser) {
+      const isAssigned = item.assignedTo.some(u => u.toString() === req.user._id.toString());
+      if (!isAssigned) {
+        return res.status(403).json({ message: 'You can only update compliance items assigned to you.' });
+      }
+    }
+
+    // Define allowed fields per role
+    const fullFields = ['title', 'law', 'regulation', 'category', 'description', 'frequency', 'dueDate', 'applicableFrom', 'applicableTo', 'assignedTo', 'status', 'priority', 'riskScore', 'notes', 'isRecurring', 'proofRequired', 'reminderSettings'];
+    const managerFields = ['status', 'notes', 'proofRequired', 'reminderSettings'];
+    const assignedFields = ['status', 'notes', 'proofRequired', 'reminderSettings'];
+
+    const allowedFields = (isDevUser || isAdmin) ? fullFields : (isManager ? managerFields : assignedFields);
+    const updates = {};
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) updates[field] = req.body[field];
+    }
+
+    const updated = await Compliance.findOneAndUpdate(
       { _id: req.params.id, organization: req.organizationId },
-      req.body,
+      updates,
       { new: true, runValidators: true }
     );
 
-    if (!item) return res.status(404).json({ message: 'Compliance item not found.' });
-    res.json(item);
+    emitToOrg(req.organizationId, 'compliance:updated', { _id: updated._id, title: updated.title, status: updated.status });
+    res.json(updated);
   } catch (error) {
     next(error);
   }
@@ -110,6 +155,7 @@ exports.deleteComplianceItem = async (req, res, next) => {
       organization: req.organizationId
     });
     if (!item) return res.status(404).json({ message: 'Compliance item not found.' });
+    emitToOrg(req.organizationId, 'compliance:deleted', { _id: item._id });
     res.json({ message: 'Compliance item deleted.' });
   } catch (error) {
     next(error);
@@ -118,6 +164,27 @@ exports.deleteComplianceItem = async (req, res, next) => {
 
 exports.updateStatus = async (req, res, next) => {
   try {
+    const isDevUser = req.user.role === 'developer' || req.user.role === 'superadmin';
+    const isAdmin = req.user.role === 'admin';
+    const isManager = req.user.role === 'manager';
+    const isUser = req.user.role === 'user';
+
+    const item = await Compliance.findOne({
+      _id: req.params.id,
+      organization: req.organizationId
+    });
+
+    if (!item) return res.status(404).json({ message: 'Compliance item not found.' });
+
+    // Ownership check: regular users can only update status on items assigned to them.
+    // Managers can work on any task in the organization (but cannot delete).
+    if (isUser) {
+      const isAssigned = item.assignedTo.some(u => u.toString() === req.user._id.toString());
+      if (!isAssigned) {
+        return res.status(403).json({ message: 'You can only update status on compliance items assigned to you.' });
+      }
+    }
+
     const { status, notes } = req.body;
     const update = { status };
     if (status === 'completed') {
@@ -126,24 +193,29 @@ exports.updateStatus = async (req, res, next) => {
     }
     if (notes !== undefined) update.notes = notes;
 
-    const item = await Compliance.findOneAndUpdate(
+    const updated = await Compliance.findOneAndUpdate(
       { _id: req.params.id, organization: req.organizationId },
       update,
       { new: true }
     );
 
-    if (!item) return res.status(404).json({ message: 'Compliance item not found.' });
+    emitToOrg(req.organizationId, 'compliance:status-changed', {
+      _id: updated._id,
+      title: updated.title,
+      status: updated.status,
+      updatedBy: req.user.name
+    });
 
-    if (item.status === 'completed' && item.isRecurring && item.frequency !== 'one-time') {
-      const nextDue = new Date(item.dueDate);
+    if (updated.status === 'completed' && updated.isRecurring && updated.frequency !== 'one-time') {
+      const nextDue = new Date(updated.dueDate);
       const freqMap = { monthly: 1, quarterly: 3, 'half-yearly': 6, yearly: 12 };
-      const months = freqMap[item.frequency];
+      const months = freqMap[updated.frequency];
       if (months) {
         nextDue.setMonth(nextDue.getMonth() + months);
         await Compliance.create({
-          ...item.toObject(),
+          ...updated.toObject(),
           _id: undefined,
-          parentCompliance: item._id,
+          parentCompliance: updated._id,
           status: 'pending',
           dueDate: nextDue,
           completedAt: undefined,
@@ -154,7 +226,7 @@ exports.updateStatus = async (req, res, next) => {
       }
     }
 
-    res.json(item);
+    res.json(updated);
   } catch (error) {
     next(error);
   }
@@ -165,8 +237,9 @@ exports.getComplianceStats = async (req, res, next) => {
     const isDevUser = req.user.role === 'developer' || req.user.role === 'superadmin';
     const orgFilter = isDevUser ? {} : { organization: req.organizationId };
     const now = new Date();
+    const excludeCompletedOneTime = { $nor: [{ frequency: 'one-time', status: 'completed' }] };
     const pipeline = [
-      { $match: orgFilter },
+      { $match: { ...orgFilter, ...excludeCompletedOneTime } },
       {
         $group: {
           _id: null,
@@ -188,18 +261,20 @@ exports.getComplianceStats = async (req, res, next) => {
 
     const overdueItems = await Compliance.countDocuments({
       ...orgFilter,
+      ...excludeCompletedOneTime,
       dueDate: { $lt: now },
       status: { $nin: ['completed', 'waived'] }
     });
 
     const upcomingDeadlines = await Compliance.find({
       ...orgFilter,
+      ...excludeCompletedOneTime,
       dueDate: { $gte: now, $lte: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000) },
       status: { $nin: ['completed', 'waived'] }
     }).populate('assignedTo', 'name email').sort('dueDate').limit(10);
 
     const lawDistribution = await Compliance.aggregate([
-      { $match: orgFilter },
+      { $match: { ...orgFilter, ...excludeCompletedOneTime } },
       { $group: { _id: '$law', count: { $sum: 1 } } },
       { $sort: { count: -1 } }
     ]);
@@ -241,7 +316,95 @@ exports.bulkCreateFromTemplate = async (req, res, next) => {
     }));
 
     const created = await Compliance.insertMany(items);
+    emitToOrg(req.organizationId, 'compliance:created', { _id: 'bulk', count: created.length });
     res.status(201).json({ message: `${created.length} compliance items created.`, items: created });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.assignUsers = async (req, res, next) => {
+  try {
+    const { assignedTo } = req.body;
+    const item = await Compliance.findOneAndUpdate(
+      { _id: req.params.id, organization: req.organizationId },
+      { assignedTo },
+      { new: true, runValidators: true }
+    ).populate('assignedTo', 'name email');
+
+    if (!item) return res.status(404).json({ message: 'Compliance item not found.' });
+
+    emitToOrg(req.organizationId, 'compliance:assigned', {
+      _id: item._id,
+      title: item.title,
+      assignedTo: item.assignedTo.map(u => u.name),
+      assignedBy: req.user.name
+    });
+
+    res.json(item);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.bulkAssignCompliance = async (req, res, next) => {
+  try {
+    const { complianceIds, assignedTo } = req.body;
+    if (!Array.isArray(complianceIds) || complianceIds.length === 0) {
+      return res.status(400).json({ message: 'complianceIds must be a non-empty array.' });
+    }
+    if (!Array.isArray(assignedTo)) {
+      return res.status(400).json({ message: 'assignedTo must be an array of user IDs.' });
+    }
+
+    const result = await Compliance.updateMany(
+      { _id: { $in: complianceIds }, organization: req.organizationId },
+      { assignedTo },
+      { runValidators: true }
+    );
+
+    emitToOrg(req.organizationId, 'compliance:bulk-assigned', {
+      count: result.modifiedCount,
+      assignedTo,
+      assignedBy: req.user.name
+    });
+
+    res.json({ message: `${result.modifiedCount} compliance items assigned successfully.`, modifiedCount: result.modifiedCount });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.uploadProof = async (req, res, next) => {
+  try {
+    if (!req.file) return res.status(400).json({ message: 'No file uploaded.' });
+
+    const item = await Compliance.findOne({
+      _id: req.params.id,
+      organization: req.organizationId
+    });
+
+    if (!item) return res.status(404).json({ message: 'Compliance item not found.' });
+
+    const document = {
+      name: req.file.originalname,
+      url: `/uploads/${req.file.filename}`,
+      uploadedBy: req.user._id,
+      uploadedAt: new Date()
+    };
+
+    item.documents.push(document);
+    item.proofUploaded = true;
+    await item.save();
+
+    emitToOrg(req.organizationId, 'compliance:proof-uploaded', {
+      _id: item._id,
+      title: item.title,
+      fileName: document.name,
+      uploadedBy: req.user.name
+    });
+
+    res.json(item);
   } catch (error) {
     next(error);
   }

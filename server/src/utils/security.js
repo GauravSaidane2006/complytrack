@@ -37,6 +37,16 @@ const sanitizeFilename = (filename) => {
     .substring(0, 255);
 };
 
+const escapeHtml = (str) => {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+};
+
 module.exports = {
   escapeRegex,
   sanitizeInput,
@@ -44,5 +54,6 @@ module.exports = {
   hashToken,
   verifyTokenHash,
   isValidEmail,
-  sanitizeFilename
+  sanitizeFilename,
+  escapeHtml
 };

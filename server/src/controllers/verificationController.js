@@ -5,7 +5,7 @@ const { ONBOARDING_DATA } = require('../data/onboardingData');
 
 exports.uploadDocument = async (req, res, next) => {
   try {
-    const { documentType, sector } = req.body;
+    const { documentType, sector, panNumber, gstinNumber } = req.body;
 
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded. Please select a document.' });
@@ -31,6 +31,22 @@ exports.uploadDocument = async (req, res, next) => {
     );
     if (existingDoc) {
       return res.status(400).json({ message: 'This document type has already been uploaded. Rejected documents can be re-uploaded.' });
+    }
+
+    if (panNumber) {
+      const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+      if (!panRegex.test(panNumber.toUpperCase())) {
+        return res.status(400).json({ message: 'Invalid PAN format. Must be 5 letters + 4 digits + 1 letter (e.g., ABCDE1234F).' });
+      }
+      organization.pan = panNumber.toUpperCase();
+    }
+
+    if (gstinNumber) {
+      const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+      if (!gstRegex.test(gstinNumber.toUpperCase())) {
+        return res.status(400).json({ message: 'Invalid GSTIN format. Must be 15 characters (e.g., 22AAAAA0000A1Z5).' });
+      }
+      organization.gstin = gstinNumber.toUpperCase();
     }
 
     const verification = await Verification.create({
@@ -93,7 +109,7 @@ exports.uploadDocument = async (req, res, next) => {
 exports.getVerificationStatus = async (req, res, next) => {
   try {
     const isDevUser = req.user.role === 'developer' || req.user.role === 'superadmin';
-    const orgId = req.params.orgId || req.user.organization;
+    const orgId = req.params.orgId || req.user.organization.toString();
     
     if (!isDevUser && orgId !== req.user.organization.toString()) {
       return res.status(403).json({ message: 'Access denied to this organization.' });
@@ -136,7 +152,12 @@ exports.reviewDocument = async (req, res, next) => {
   try {
     const { status, rejectionReason } = req.body;
 
-    const verification = await Verification.findById(req.params.id);
+    const isDevUser = req.user.role === 'developer' || req.user.role === 'superadmin';
+
+    const verification = await Verification.findOne({
+      _id: req.params.id,
+      ...(isDevUser ? {} : { organization: req.organizationId })
+    });
     if (!verification) {
       return res.status(404).json({ message: 'Document not found.' });
     }
@@ -166,11 +187,21 @@ exports.reviewDocument = async (req, res, next) => {
 
     const allDocs = organization.documents;
     const hasRejected = allDocs.some(d => d.status === 'rejected');
-    const allApproved = allDocs.length > 0 && allDocs.every(d => d.status === 'approved');
+
+    const orgSector = organization.sector;
+    const orgIndustry = organization.industry;
+    const sectorData = ONBOARDING_DATA[orgSector] || {};
+    const requiredDocs = [
+      ...(sectorData.common || []),
+      ...(sectorData.industries?.[orgIndustry] || [])
+    ];
+    const uploadedTypes = allDocs.map(d => d.documentType);
+    const allRequiredUploaded = requiredDocs.every(d => uploadedTypes.includes(d.type));
+    const allUploadedApproved = allRequiredUploaded && allDocs.every(d => d.status === 'approved');
 
     if (hasRejected) {
       organization.verificationStatus = 'rejected';
-    } else if (allApproved) {
+    } else if (allUploadedApproved) {
       organization.verificationStatus = 'verified';
       organization.verifiedAt = new Date();
     } else {
@@ -271,13 +302,44 @@ exports.getHelpContent = async (req, res, next) => {
     }));
 
     const content = {
-      title: `${doc.sectorLabel || sector} Sector - Document Requirements`,
+      title: `${sectorData.name || sector} Sector - Document Requirements`,
       description: `Required documents for ${sector} sector businesses${industry ? ` in ${industry}` : ''}.`,
       steps,
       faq
     };
 
     res.json(content);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getAllVerifications = async (req, res, next) => {
+  try {
+    const isDevUser = req.user.role === 'developer' || req.user.role === 'superadmin';
+    const filter = isDevUser ? {} : { organization: req.organizationId };
+    if (req.query.status) {
+      filter.status = req.query.status;
+    }
+    if (isDevUser && req.query.organization) filter.organization = req.query.organization;
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 50;
+    const skip = (page - 1) * limit;
+
+    const [verifications, total] = await Promise.all([
+      Verification.find(filter)
+        .populate('organization', 'name companyId gstin sector industry verificationStatus')
+        .sort('-createdAt')
+        .skip(skip)
+        .limit(limit),
+      Verification.countDocuments(filter)
+    ]);
+
+    res.json({
+      verifications,
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+    });
   } catch (error) {
     next(error);
   }

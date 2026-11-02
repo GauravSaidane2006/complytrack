@@ -2,6 +2,7 @@ const User = require('../models/User');
 const Organization = require('../models/Organization');
 const Compliance = require('../models/Compliance');
 const Alert = require('../models/Alert');
+const { emitToOrg } = require('../utils/socketHelper');
 
 const validatePassword = (password) => {
   if (password.length < 8) return 'Password must be at least 8 characters long.';
@@ -52,6 +53,7 @@ exports.createUser = async (req, res, next) => {
         role: role || 'user',
         organization: req.organizationId
       });
+      emitToOrg(req.organizationId, 'user:created', { _id: user._id, name: user.name, role: user.role });
       return res.status(201).json(user);
     }
 
@@ -74,6 +76,7 @@ exports.createUser = async (req, res, next) => {
       organization: req.organizationId,
       sector: req.user.sector
     });
+    emitToOrg(req.organizationId, 'user:created', { _id: user._id, name: user.name, role: user.role });
     res.status(201).json(user);
   } catch (error) {
     next(error);
@@ -83,7 +86,7 @@ exports.createUser = async (req, res, next) => {
 exports.updateUser = async (req, res, next) => {
   try {
     const allowedFields = ['name', 'email', 'phone', 'designation', 'isActive'];
-    if (req.user.role === 'superadmin' || req.user.role === 'developer') {
+    if (req.user.role === 'superadmin' || req.user.role === 'developer' || req.user.role === 'admin') {
       allowedFields.push('role');
     }
 
@@ -92,7 +95,7 @@ exports.updateUser = async (req, res, next) => {
       if (req.body[field] !== undefined) updates[field] = req.body[field];
     }
 
-    if (updates.role && req.user.role !== 'superadmin' && req.user.role !== 'developer') {
+    if (updates.role && req.user.role !== 'superadmin' && req.user.role !== 'developer' && req.user.role !== 'admin') {
       delete updates.role;
     }
 
@@ -103,6 +106,7 @@ exports.updateUser = async (req, res, next) => {
     ).select('-password -refreshToken -__v');
 
     if (!user) return res.status(404).json({ message: 'User not found.' });
+    emitToOrg(req.organizationId, 'user:updated', { _id: user._id, name: user.name });
     res.json(user);
   } catch (error) {
     next(error);
@@ -121,13 +125,14 @@ exports.deleteUser = async (req, res, next) => {
       ...(isDevUser ? {} : { organization: req.organizationId })
     });
     if (!user) return res.status(404).json({ message: 'User not found.' });
+    emitToOrg(req.organizationId, 'user:deleted', { _id: req.params.id });
     res.json({ message: 'User deleted.' });
   } catch (error) {
     next(error);
   }
 };
 
-exports.getCompanyReport = async (req, res, next) => {
+exports.getOrgUsers = async (req, res, next) => {
   try {
     const organization = await Organization.findById(req.user.organization)
       .populate('createdBy', 'name email');
@@ -220,3 +225,5 @@ exports.getCompanyReport = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getCompanyReport = exports.getOrgUsers;
